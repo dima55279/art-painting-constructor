@@ -1,13 +1,19 @@
-/* Questionnaire/Questionnaire.module.css */
-
 .questionnaire {
-    background-image: url('../../images/mainPage/placeholderDark.png');
     margin-top: 50px;
     padding: 30px;
     border-radius: 15px;
     border: 3px solid #FF018F;
     background-size: cover;
     background-position: center;
+    transition: all 0.3s ease;
+}
+
+.questionnaire.dark {
+    background-image: url('../../images/mainPage/placeholderDark.png');
+}
+
+.questionnaire.light {
+    background-image: url('../../images/mainPage/placeholderLight.png');
 }
 
 .sectionTitle {
@@ -17,18 +23,32 @@
     font-weight: 800;
     font-style: italic;
     line-height: 110%;
-    color: #FBFF00;
     text-align: center;
+    transition: color 0.3s ease;
+}
+
+.questionnaire.dark .sectionTitle {
+    color: #11012E;
+}
+
+.questionnaire.light .sectionTitle {
+    color: #FBFF00;
 }
 
 .line {
-    border-color: #FBFF00;
+    border-color: #11012E;
     height: 6px;
-    background-color: #FBFF00;
+    background-color: #11012E;
     border-radius: 10px;
     border: none;
     margin: 25px 0;
     width: 100%;
+    transition: all 0.3s ease;
+}
+
+.questionnaire.light .line {
+    border-color: #FBFF00;
+    background-color: #FBFF00;
 }
 
 .questionnaireForm {
@@ -39,11 +59,20 @@
 
 .question {
     margin-bottom: 20px;
-    background: rgba(255, 255, 255, 0.9);
     padding: 20px;
     border-radius: 10px;
-    border: 2px solid #11012E;
+    border: 2px solid;
     transition: all 0.3s ease;
+}
+
+.question.dark {
+    background: rgba(255, 255, 255, 0.9);
+    border-color: #11012E;
+}
+
+.question.light {
+    background: rgba(17, 1, 46, 0.9);
+    border-color: #FBFF00;
 }
 
 .question:hover {
@@ -58,33 +87,66 @@
     font-style: italic;
     font-size: 20px;
     line-height: 150%;
-    color: #11012E;
     text-transform: uppercase;
+    transition: color 0.3s ease;
+}
+
+.question.dark label {
+    color: #11012E;
+}
+
+.question.light label {
+    color: #FBFF00;
 }
 
 .textInput {
     width: 100%;
     height: 120px;
     padding: 15px;
-    border: 2px solid #11012E;
+    border: 2px solid;
     border-radius: 8px;
     font-family: 'JetBrains Mono', Arial, sans-serif;
     font-size: 16px;
     resize: vertical;
     transition: all 0.3s ease;
+}
+
+.textInput.dark {
+    border-color: #11012E;
     background-color: rgba(251, 255, 0, 0.1);
+    color: #11012E;
+}
+
+.textInput.light {
+    border-color: #FBFF00;
+    background-color: rgba(17, 1, 46, 0.1);
+    color: #FBFF00;
 }
 
 .textInput:focus {
     outline: none;
     border-color: #FF018F;
-    background-color: rgba(255, 255, 255, 0.9);
     box-shadow: 0 0 10px rgba(255, 1, 143, 0.3);
 }
 
+.textInput.dark:focus {
+    background-color: rgba(255, 255, 255, 0.9);
+}
+
+.textInput.light:focus {
+    background-color: rgba(251, 255, 0, 0.9);
+}
+
 .textInput::placeholder {
-    color: #666;
     font-style: italic;
+}
+
+.textInput.dark::placeholder {
+    color: #666;
+}
+
+.textInput.light::placeholder {
+    color: #aaa;
 }
 
 .submitBtn {
@@ -117,7 +179,18 @@
     box-shadow: none;
 }
 
-/* Адаптивность */
+.themeText {
+    transition: color 0.3s ease;
+}
+
+.dark .themeText {
+    color: #FBFF00;
+}
+
+.light .themeText {
+    color: #11012E;
+}
+
 @media (max-width: 768px) {
     .questionnaire {
         padding: 20px;

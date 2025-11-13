@@ -1,27 +1,44 @@
 .photoUpload {
     margin-bottom: 30px;
     padding: 20px;
-    background: rgba(255, 255, 255, 0.1);
     border-radius: 8px;
     border: 2px solid #FF018F;
+    transition: all 0.3s ease;
+}
+
+.photoUpload.dark {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.photoUpload.light {
+    background: rgba(17, 1, 46, 0.1);
 }
 
 .fileInput {
     width: 100%;
     padding: 12px;
     margin-bottom: 15px;
-    border: 2px dashed #FBFF00;
+    border: 2px dashed;
     border-radius: 8px;
-    background-color: rgba(251, 255, 0, 0.1);
-    color: #FBFF00;
     font-family: 'JetBrains Mono', Arial, sans-serif;
     font-size: 16px;
     cursor: pointer;
     transition: all 0.3s ease;
 }
 
+.fileInput.dark {
+    background-color: rgba(251, 255, 0, 0.1);
+    border-color: #FBFF00;
+    color: #FBFF00;
+}
+
+.fileInput.light {
+    background-color: rgba(17, 1, 46, 0.1);
+    border-color: #11012E;
+    color: #11012E;
+}
+
 .fileInput:hover {
-    background-color: rgba(251, 255, 0, 0.2);
     border-color: #FF018F;
 }
 
@@ -74,12 +91,23 @@
     text-align: center;
 }
 
-.photoPreview h3 {
+.photoTitle {
     font-size: 24px;
     font-weight: 700;
-    color: #FBFF00;
     margin-bottom: 15px;
     text-transform: uppercase;
+    font-family: 'JetBrains Mono', Arial, sans-serif;
+    transition: color 0.3s ease;
+}
+
+.photoTitleDark {
+    color: #11012E;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.photoTitleLight {
+    color: #FBFF00;
+    text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.5);
 }
 
 .resultPhotoPlaceholder {
@@ -87,11 +115,23 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: rgba(17, 1, 46, 0.8);
-    border: 2px solid #FBFF00;
+    border: 2px solid;
     border-radius: 8px;
     margin: 0 auto;
     overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.resultPhotoPlaceholder.dark {
+    background-color: rgba(17, 1, 46, 0.8);
+    border-color: #FBFF00;
+    color: #FBFF00;
+}
+
+.resultPhotoPlaceholder.light {
+    background-color: rgba(251, 255, 0, 0.8);
+    border-color: #11012E;
+    color: #11012E;
 }
 
 .uploadedPhoto {
@@ -101,7 +141,6 @@
     border-radius: 6px;
 }
 
-/* Адаптивность */
 @media (max-width: 768px) {
     .photoUpload {
         padding: 15px;
@@ -117,7 +156,7 @@
         height: 250px;
     }
     
-    .photoPreview h3 {
+    .photoTitle {
         font-size: 20px;
     }
 }
@@ -138,5 +177,9 @@
     
     .resultPhotoPlaceholder {
         height: 200px;
+    }
+    
+    .photoTitle {
+        font-size: 18px;
     }
 }

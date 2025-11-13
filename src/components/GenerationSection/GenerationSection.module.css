@@ -1,13 +1,20 @@
-/* GenerationSection/GenerationSection.module.css */
-
 .generationSection {
     text-align: center;
     margin-top: 60px;
-    color: #FBFF00;
     padding: 40px 20px;
-    background: rgba(17, 1, 46, 0.9);
     border-radius: 15px;
     border: 3px solid #FF018F;
+    transition: all 0.3s ease;
+}
+
+.generationSection.dark {
+    background: rgba(17, 1, 46, 0.9);
+    color: #FBFF00;
+}
+
+.generationSection.light {
+    background: rgba(251, 255, 0, 0.9);
+    color: #11012E;
 }
 
 .sectionTitle {
@@ -17,14 +24,15 @@
     font-weight: 800;
     font-style: italic;
     line-height: 110%;
+    transition: color 0.3s ease;
 }
 
 .generationSection h3 {
     font-size: 32px;
     margin-bottom: 25px;
     font-weight: 700;
-    color: #FBFF00;
     text-transform: uppercase;
+    transition: color 0.3s ease;
 }
 
 .resultGenerationPlaceholder {
@@ -33,17 +41,34 @@
     align-items: center;
     justify-content: center;
     font-family: 'JetBrains Mono', Arial, sans-serif;
+    margin: 30px 0;
+    border-radius: 12px;
+    border: 2px solid;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.resultGenerationPlaceholder.dark {
     background-image: url('../../images/mainPage/generationPlaceholderDark.png'), 
                      url('../../images/mainPage/astronautDark.png'), 
                      url('../../images/mainPage/knightDark.png');
+    border-color: #FBFF00;
+    color: #FBFF00;
+}
+
+.resultGenerationPlaceholder.light {
+    background-image: url('../../images/mainPage/generationPlaceholderLight.png'), 
+                     url('../../images/mainPage/astronautLight.png'), 
+                     url('../../images/mainPage/knightLight.png');
+    border-color: #11012E;
+    color: #11012E;
+}
+
+.resultGenerationPlaceholder {
     background-repeat: no-repeat;
     background-position: center, left bottom, right bottom;
     background-size: 300px, 150px, 150px;
-    margin: 30px 0;
-    border-radius: 12px;
-    border: 2px solid #FBFF00;
-    position: relative;
-    overflow: hidden;
 }
 
 .generatedImage {
@@ -57,9 +82,9 @@
 
 .placeholderContent {
     font-size: 28px;
-    color: #FBFF00;
     font-weight: 600;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    transition: color 0.3s ease;
 }
 
 .generateBtn {
@@ -106,7 +131,18 @@
     100% { transform: rotate(360deg); }
 }
 
-/* Адаптивность */
+.themeText {
+    transition: color 0.3s ease;
+}
+
+.dark .themeText {
+    color: #FBFF00;
+}
+
+.light .themeText {
+    color: #11012E;
+}
+
 @media (max-width: 768px) {
     .generationSection {
         padding: 30px 15px;

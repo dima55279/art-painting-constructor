@@ -2,9 +2,17 @@
     margin-top: 30px;
     margin-bottom: 30px;
     padding: 20px;
-    background: rgba(255, 255, 255, 0.1);
     border-radius: 8px;
     border: 2px solid #FF018F;
+    transition: all 0.3s ease;
+}
+
+.frameSelection.dark {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.frameSelection.light {
+    background: rgba(17, 1, 46, 0.1);
 }
 
 .frameSelection h3 {
@@ -13,9 +21,17 @@
     font-style: italic;
     line-height: 110%;
     margin-bottom: 20px;
-    color: #FBFF00;
     text-transform: uppercase;
     text-align: center;
+    transition: color 0.3s ease;
+}
+
+.frameSelection.dark h3 {
+    color: #11012E;
+}
+
+.frameSelection.light h3 {
+    color: #FBFF00;
 }
 
 .frames {
@@ -31,7 +47,7 @@
     min-width: 150px;
     max-width: 200px;
     height: 150px;
-    border: 3px solid #FBFF00;
+    border: 3px solid;
     border-radius: 8px;
     display: flex;
     align-items: center;
@@ -42,10 +58,20 @@
     font-weight: 800;
     font-style: italic;
     line-height: 110%;
-    color: #FBFF00;
-    background-color: rgba(17, 1, 46, 0.9);
     transition: all 0.3s ease;
     text-transform: uppercase;
+}
+
+.frame.dark {
+    border-color: #FBFF00;
+    background-color: rgba(17, 1, 46, 0.9);
+    color: #FBFF00;
+}
+
+.frame.light {
+    border-color: #11012E;
+    background-color: rgba(251, 255, 0, 0.9);
+    color: #11012E;
 }
 
 .frame:hover {
@@ -74,17 +100,44 @@
 .framePreview h4 {
     font-size: 20px;
     font-weight: 700;
-    color: #FBFF00;
     margin-bottom: 10px;
+    transition: color 0.3s ease;
+}
+
+.framePreview.dark h4 {
+    color: #FBFF00;
+}
+
+.framePreview.light h4 {
+    color: #11012E;
 }
 
 .selectedFrameInfo {
     font-size: 16px;
-    color: #FBFF00;
     font-weight: 500;
+    transition: color 0.3s ease;
 }
 
-/* Адаптивность */
+.selectedFrameInfo.dark {
+    color: #FBFF00;
+}
+
+.selectedFrameInfo.light {
+    color: #11012E;
+}
+
+.themeText {
+    transition: color 0.3s ease;
+}
+
+.dark .themeText {
+    color: #11012E;
+}
+
+.light .themeText {
+    color: #FBFF00;
+}
+
 @media (max-width: 768px) {
     .frameSelection {
         padding: 15px;

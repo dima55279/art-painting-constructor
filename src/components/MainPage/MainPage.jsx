@@ -8,6 +8,10 @@ import FrameSelection from '../../components/FrameSelection/FrameSelection'
 import Questionnaire from '../../components/Questionnaire/Questionnaire'
 import GenerationSection from '../../components/GenerationSection/GenerationSection'
 import styles from './MainPage.module.css'
+import cowboyDark from '../../images/mainPage/cowboyAndFairyDark.png'
+import cowboyLight from '../../images/mainPage/cowboyAndFairyLight.png'
+import dragonDark from '../../images/mainPage/dragonAndPlanetDark.png'
+import dragonLight from '../../images/mainPage/dragonAndPlanetLight.png'
 
 const MainPage = () => {
   const dispatch = useDispatch()
@@ -18,21 +22,27 @@ const MainPage = () => {
     dispatch(setLoading(true))
     // Имитация генерации изображения
     setTimeout(() => {
-      dispatch(setGeneratedImage('path/to/generated/image.png'))
+      dispatch(setGeneratedImage(
+        isDark 
+          ? '../../images/mainPage/generatedDark.png' 
+          : '../../images/mainPage/generatedLight.png'
+      ))
       dispatch(setLoading(false))
     }, 2000)
   }
+
+  const themeClass = isDark ? styles.dark : styles.light
 
   return (
     <div className={styles.mainPage}>
       <Header />
       <div className={styles.container}>
         <div className={styles.mainContent}>
-          <div className={styles.leftColumn}>
-            <div className={styles.photoBlock}>
+          <div className={`${styles.leftColumn} ${themeClass}`}>
+            <div className={`${styles.photoBlock} ${themeClass}`}>
               <div className={styles.photoPreview}>
-                <h3>Ваше фото</h3>
-                <div className={styles.resultPhotoPlaceholder}>
+                <h3 className={styles.themeText}>Ваше фото</h3>
+                <div className={`${styles.resultPhotoPlaceholder} ${themeClass}`}>
                   {uploadedPhoto ? (
                     <img 
                       src={uploadedPhoto} 
@@ -40,33 +50,27 @@ const MainPage = () => {
                       className={styles.uploadedPhoto}
                     />
                   ) : (
-                    <span>Здесь будет ваше фото</span>
+                    <span className={styles.themeText}>Здесь будет ваше фото</span>
                   )}
                 </div>
               </div>
               <FrameSelection />
             </div>
             <img 
-              src={isDark 
-                ? '/images/mainPage/cowboyAndFairyDark.png' 
-                : '/images/mainPage/cowboyAndFairyLight.png'
-              } 
+              src={isDark ? cowboyDark : cowboyLight} 
               className={styles.presetCowboy} 
               alt="Cowboy and Fairy" 
             />
             <img 
-              src={isDark
-                ? '/images/mainPage/dragonAndPlanetDark.png'
-                : '/images/mainPage/dragonAndPlanetLight.png'
-              }
+              src={isDark ? dragonDark : dragonLight}
               className={styles.presetDragon}
               alt="Dragon and Planet"
             />
           </div>
           
-          <div className={styles.rightColumn}>
-            <h2 className={styles.sectionTitle}>Краткая информация</h2>
-            <p className={styles.infoText}>
+          <div className={`${styles.rightColumn} ${themeClass}`}>
+            <h2 className={`${styles.sectionTitle} ${styles.themeText}`}>Краткая информация</h2>
+            <p className={`${styles.infoText} ${styles.themeText}`}>
               Испытываете муки выбора подарка любимому человеку?<br />
               Тогда наш сервис - идеальный выбор!<br />
               Загрузите фотографию того, кому хотите сделать подарок (убедитесь, что его лицо чётко видно), 
@@ -74,10 +78,7 @@ const MainPage = () => {
               где Ваш любимый человек будет изображен в том образе и окружении, в котором Вы пожелаете!
             </p>
             
-            <div className={styles.photoUpload}>
-              <input type="file" className={styles.fileInput} />
-              <button className={styles.uploadBtn}>Загрузить фото</button>
-            </div>
+            <PhotoUpload />
             
             <Questionnaire />
           </div>

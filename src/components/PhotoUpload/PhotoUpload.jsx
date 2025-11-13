@@ -1,23 +1,23 @@
 import React, { useRef } from 'react'
-import { useSelector, useDispatch } from 'react-redux'
-import { setUploadedPhoto } from '../../store/slices/photoSlice'
+import { useSelector } from 'react-redux'
+import { usePhotoUpload } from '../../hooks/usePhotoUpload'
 import styles from './PhotoUpload.module.css'
 
 const PhotoUpload = () => {
-  const dispatch = useDispatch()
   const { uploadedPhoto } = useSelector((state) => state.photo)
+  const { isDark } = useSelector((state) => state.theme)
+  const { handlePhotoUpload, isLoading } = usePhotoUpload()
   const fileInputRef = useRef(null)
 
-  const handleFileUpload = (event) => {
+  const handleFileChange = async (event) => {
     const file = event.target.files[0]
-    if (file && file.type.match('image.*')) {
-      const reader = new FileReader()
-      reader.onload = (e) => {
-        dispatch(setUploadedPhoto(e.target.result))
+    if (file) {
+      try {
+        await handlePhotoUpload(file)
+        alert('Фото успешно загружено!')
+      } catch (error) {
+        alert(error.message)
       }
-      reader.readAsDataURL(file)
-    } else {
-      alert('Пожалуйста, выберите файл изображения')
     }
   }
 
@@ -25,23 +25,31 @@ const PhotoUpload = () => {
     fileInputRef.current?.click()
   }
 
+  const themeClass = isDark ? styles.dark : styles.light
+  const titleThemeClass = isDark ? styles.photoTitleDark : styles.photoTitleLight
+
   return (
-    <div className={styles.photoUpload}>
+    <div className={`${styles.photoUpload} ${themeClass}`}>
       <input
         type="file"
         ref={fileInputRef}
-        onChange={handleFileUpload}
-        className={styles.fileInput}
+        onChange={handleFileChange}
+        className={`${styles.fileInput} ${themeClass}`}
         accept="image/*"
+        disabled={isLoading}
       />
-      <button onClick={handleUploadClick} className={styles.uploadBtn}>
-        Загрузить фото
+      <button 
+        onClick={handleUploadClick} 
+        className={styles.uploadBtn}
+        disabled={isLoading}
+      >
+        {isLoading ? 'Загрузка...' : 'Загрузить фото'}
       </button>
       
       {uploadedPhoto && (
         <div className={styles.photoPreview}>
-          <h3>Ваше фото</h3>
-          <div className={styles.resultPhotoPlaceholder}>
+          <h3 className={`${styles.photoTitle} ${titleThemeClass}`}>Ваше фото</h3>
+          <div className={`${styles.resultPhotoPlaceholder} ${themeClass}`}>
             <img 
               src={uploadedPhoto} 
               alt="Загруженное фото" 

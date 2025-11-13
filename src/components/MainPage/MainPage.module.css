@@ -1,9 +1,8 @@
-/* MainPage/MainPage.module.css */
-
 .mainPage {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  transition: all 0.3s ease;
 }
 
 .container {
@@ -11,6 +10,7 @@
   margin: 0 auto;
   padding: 0 20px;
   flex: 1;
+  transition: all 0.3s ease;
 }
 
 .mainContent {
@@ -20,20 +20,20 @@
   flex-wrap: wrap;
 }
 
-.leftColumn {
+.leftColumn, .rightColumn {
   flex: 1;
   min-width: 300px;
-  background-color: #11012E;
   padding: 20px;
   border-radius: 8px;
+  transition: all 0.3s ease;
 }
 
-.rightColumn {
-  flex: 1;
-  min-width: 300px;
+.leftColumn.dark, .rightColumn.dark {
   background-color: #11012E;
-  padding: 20px;
-  border-radius: 8px;
+}
+
+.leftColumn.light, .rightColumn.light {
+  background-color: #FBFF00;
 }
 
 .sectionTitle {
@@ -44,8 +44,8 @@
   font-weight: 800;
   font-style: italic;
   line-height: 110%;
-  color: #FBFF00;
   text-align: left;
+  transition: color 0.3s ease;
 }
 
 .sectionTitleForm {
@@ -59,14 +59,30 @@
   font-weight: 500;
   font-style: italic;
   line-height: 150%;
+  transition: color 0.3s ease;
+}
+
+.themeText {
+  transition: color 0.3s ease;
+}
+
+.dark .themeText {
   color: #FBFF00;
 }
 
-/* Photo Block Styles */
+.light .themeText {
+  color: #11012E;
+}
+
+.dark .photoPreview .themeText {
+  color: #11012E;
+}
+
+.light .photoPreview .themeText {
+  color: #FBFF00;
+}
+
 .photoBlock {
-  background-image: url('../../images/mainPage/heroDark.png'), 
-                   url('../..//images/mainPage/injunDark.png'), 
-                   url('../../images/mainPage/placeholderDark.png');
   background-position: 0 50%, 100% 50%, 50% 50%;
   background-repeat: no-repeat, no-repeat, repeat;
   width: 100%;
@@ -74,6 +90,19 @@
   padding: 20px;
   border-radius: 8px;
   margin-bottom: 30px;
+  transition: all 0.3s ease;
+}
+
+.photoBlock.dark {
+  background-image: url('../../images/mainPage/heroDark.png'), 
+                   url('../../images/mainPage/injunDark.png'), 
+                   url('../../images/mainPage/placeholderDark.png');
+}
+
+.photoBlock.light {
+  background-image: url('../../images/mainPage/heroLight.png'), 
+                   url('../../images/mainPage/injunLight.png'), 
+                   url('../../images/mainPage/placeholderLight.png');
 }
 
 .photoPreview {
@@ -86,9 +115,9 @@
   font-style: italic;
   line-height: 110%;
   margin-bottom: 15px;
-  color: #FBFF00;
   text-transform: uppercase;
   text-align: center;
+  transition: color 0.3s ease;
 }
 
 .resultPhotoPlaceholder {
@@ -98,12 +127,23 @@
   justify-content: center;
   margin: 0 auto;
   font-family: 'JetBrains Mono', Arial, sans-serif;
-  background-color: rgba(17, 1, 46, 0.8);
-  border: 2px solid #FBFF00;
+  border: 2px solid;
   border-radius: 8px;
-  color: #FBFF00;
   font-size: 18px;
   font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.resultPhotoPlaceholder.dark {
+  background-color: rgba(17, 1, 46, 0.8);
+  border-color: #FBFF00;
+  color: #FBFF00;
+}
+
+.resultPhotoPlaceholder.light {
+  background-color: rgba(251, 255, 0, 0.8);
+  border-color: #11012E;
+  color: #11012E;
 }
 
 .uploadedPhoto {
@@ -113,31 +153,47 @@
   border-radius: 6px;
 }
 
-/* Photo Upload Section */
 .photoUpload {
   margin-bottom: 30px;
   padding: 20px;
-  background: rgba(255, 255, 255, 0.1);
   border-radius: 8px;
   border: 2px solid #FF018F;
+  transition: all 0.3s ease;
+}
+
+.photoUpload.dark {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.photoUpload.light {
+  background: rgba(17, 1, 46, 0.1);
 }
 
 .fileInput {
   width: 100%;
   padding: 12px;
   margin-bottom: 15px;
-  border: 2px dashed #FBFF00;
+  border: 2px dashed;
   border-radius: 8px;
-  background-color: rgba(251, 255, 0, 0.1);
-  color: #FBFF00;
   font-family: 'JetBrains Mono', Arial, sans-serif;
   font-size: 16px;
   cursor: pointer;
   transition: all 0.3s ease;
 }
 
+.fileInput.dark {
+  background-color: rgba(251, 255, 0, 0.1);
+  border-color: #FBFF00;
+  color: #FBFF00;
+}
+
+.fileInput.light {
+  background-color: rgba(17, 1, 46, 0.1);
+  border-color: #11012E;
+  color: #11012E;
+}
+
 .fileInput:hover {
-  background-color: rgba(251, 255, 0, 0.2);
   border-color: #FF018F;
 }
 
@@ -179,23 +235,20 @@
   transform: translateY(-2px);
 }
 
-/* Preset Images */
+.presetCowboy, .presetDragon {
+  width: 100%;
+  object-fit: contain;
+  transition: all 0.3s ease;
+}
+
 .presetCowboy {
   margin-top: 30px;
   max-height: 300px;
-  width: 100%;
-  object-fit: contain;
-  border-radius: 8px;
-  border: 2px solid #FF018F;
 }
 
 .presetDragon {
   margin-top: 20px;
   max-height: 400px;
-  width: 100%;
-  object-fit: contain;
-  border-radius: 8px;
-  border: 2px solid #FF018F;
 }
 
 .line {
@@ -206,9 +259,14 @@
   border: none;
   margin: 25px 0;
   width: 100%;
+  transition: all 0.3s ease;
 }
 
-/* Адаптивность */
+.light .line {
+  border-color: #11012E;
+  background-color: #11012E;
+}
+
 @media (max-width: 768px) {
   .mainContent {
     flex-direction: column;

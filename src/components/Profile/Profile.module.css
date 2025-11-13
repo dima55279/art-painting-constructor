@@ -1,5 +1,3 @@
-/* Profile/Profile.module.css */
-
 .container {
     max-width: 1200px;
     margin: 0 auto;
@@ -12,10 +10,10 @@
     align-items: flex-start;
     min-height: 80vh;
     padding: 50px 0;
+    transition: all 0.3s ease;
 }
 
 .profileContainer {
-    background-image: url('../../images/registration/registrationDark.png');
     background-position: center;
     background-size: cover;
     border-radius: 30px;
@@ -26,16 +24,33 @@
     flex-direction: column;
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
     border: 4px solid #FF018F;
+    transition: all 0.3s ease;
+}
+
+.profileContainer.dark {
+    background-image: url('../../images/registration/registrationDark.png');
+}
+
+.profileContainer.light {
+    background-image: url('../../images/registration/registrationLight.png');
 }
 
 .profileHeader {
     text-align: center;
-    color: #000;
     font-size: 42px;
     font-weight: 800;
     margin-bottom: 40px;
     text-transform: uppercase;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+    transition: color 0.3s ease;
+}
+
+.profileContainer.dark .profileHeader {
+    color: #000;
+}
+
+.profileContainer.light .profileHeader {
+    color: #000;
 }
 
 .profileInfo {
@@ -47,11 +62,19 @@
 .userCard {
     display: flex;
     gap: 30px;
-    background: rgba(255, 255, 255, 0.95);
     padding: 30px;
     border-radius: 20px;
     border: 3px solid #FF018F;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+}
+
+.userCard.dark {
+    background: rgba(255, 255, 255, 0.95);
+}
+
+.userCard.light {
+    background: rgba(17, 1, 46, 0.95);
 }
 
 .avatarSection {
@@ -61,7 +84,16 @@
     align-items: center;
     text-align: center;
     padding: 20px;
-    border-right: 2px dashed #11012E;
+    border-right: 2px dashed;
+    transition: border-color 0.3s ease;
+}
+
+.avatarSection.dark {
+    border-right-color: #11012E;
+}
+
+.avatarSection.light {
+    border-right-color: #FBFF00;
 }
 
 .avatar {
@@ -76,24 +108,51 @@
     font-weight: 800;
     color: #11012E;
     margin-bottom: 20px;
-    border: 4px solid #11012E;
+    border: 4px solid;
     box-shadow: 0 8px 20px rgba(255, 1, 143, 0.3);
+    transition: border-color 0.3s ease;
+}
+
+.avatar.dark {
+    border-color: #11012E;
+}
+
+.avatar.light {
+    border-color: #FBFF00;
 }
 
 .username {
     font-size: 28px;
     font-weight: 800;
-    color: #11012E;
     margin-bottom: 10px;
     text-transform: uppercase;
+    transition: color 0.3s ease;
+}
+
+.userCard.dark .username {
+    color: #11012E;
+}
+
+.userCard.light .username {
+    color: #FBFF00;
 }
 
 .userEmail,
 .userPhone {
     font-size: 16px;
-    color: #666;
     margin-bottom: 8px;
     font-weight: 600;
+    transition: color 0.3s ease;
+}
+
+.userCard.dark .userEmail,
+.userCard.dark .userPhone {
+    color: #666;
+}
+
+.userCard.light .userEmail,
+.userCard.light .userPhone {
+    color: #aaa;
 }
 
 .statsSection {
@@ -104,10 +163,18 @@
 .statsSection h3 {
     font-size: 28px;
     font-weight: 800;
-    color: #11012E;
     margin-bottom: 25px;
     text-align: center;
     text-transform: uppercase;
+    transition: color 0.3s ease;
+}
+
+.userCard.dark .statsSection h3 {
+    color: #11012E;
+}
+
+.userCard.light .statsSection h3 {
+    color: #FBFF00;
 }
 
 .statsGrid {
@@ -121,10 +188,17 @@
     flex-direction: column;
     align-items: center;
     padding: 20px;
-    background: linear-gradient(135deg, #11012E, #1a0145);
     border-radius: 15px;
     border: 2px solid #FF018F;
     transition: all 0.3s ease;
+}
+
+.statItem.dark {
+    background: linear-gradient(135deg, #11012E, #1a0145);
+}
+
+.statItem.light {
+    background: linear-gradient(135deg, #FBFF00, #e6ea00);
 }
 
 .statItem:hover {
@@ -135,33 +209,65 @@
 .statNumber {
     font-size: 36px;
     font-weight: 800;
-    color: #FBFF00;
     margin-bottom: 8px;
+    transition: color 0.3s ease;
+}
+
+.statItem.dark .statNumber {
+    color: #FBFF00;
+}
+
+.statItem.light .statNumber {
+    color: #11012E;
 }
 
 .statLabel {
     font-size: 14px;
-    color: #FBFF00;
     text-align: center;
     font-weight: 600;
     text-transform: uppercase;
+    transition: color 0.3s ease;
+}
+
+.statItem.dark .statLabel {
+    color: #FBFF00;
+}
+
+.statItem.light .statLabel {
+    color: #11012E;
 }
 
 .currentProject {
-    background: rgba(255, 255, 255, 0.95);
     padding: 30px;
     border-radius: 20px;
     border: 3px solid #FF018F;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+}
+
+.currentProject.dark {
+    background: rgba(255, 255, 255, 0.95);
+}
+
+.currentProject.light {
+    background: rgba(17, 1, 46, 0.95);
 }
 
 .currentProject h3 {
     font-size: 28px;
     font-weight: 800;
-    color: #11012E;
     margin-bottom: 25px;
     text-align: center;
     text-transform: uppercase;
+    transition: color 0.3s ease;
+}
+
+.currentProject.dark h3 {
+    color: #11012E;
+}
+
+.currentProject.light h3 {
+    color: #FBFF00;
 }
 
 .projectDetails {
@@ -179,17 +285,34 @@
 .projectPreview h4 {
     font-size: 20px;
     font-weight: 700;
-    color: #11012E;
     margin-bottom: 15px;
     text-align: center;
+    transition: color 0.3s ease;
+}
+
+.currentProject.dark .projectPreview h4 {
+    color: #11012E;
+}
+
+.currentProject.light .projectPreview h4 {
+    color: #FBFF00;
 }
 
 .projectImage {
     max-width: 250px;
     max-height: 250px;
     border-radius: 12px;
-    border: 3px solid #11012E;
+    border: 3px solid;
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    transition: border-color 0.3s ease;
+}
+
+.currentProject.dark .projectImage {
+    border-color: #11012E;
+}
+
+.currentProject.light .projectImage {
+    border-color: #FBFF00;
 }
 
 .projectInfo {
@@ -203,37 +326,82 @@
     justify-content: space-between;
     align-items: center;
     padding: 15px;
-    background: #f8f8f8;
     border-radius: 10px;
-    border: 2px solid #11012E;
+    border: 2px solid;
+    transition: all 0.3s ease;
+}
+
+.currentProject.dark .infoItem {
+    background: #f8f8f8;
+    border-color: #11012E;
+}
+
+.currentProject.light .infoItem {
+    background: rgba(251, 255, 0, 0.2);
+    border-color: #FBFF00;
 }
 
 .infoItem strong {
-    color: #11012E;
     font-weight: 700;
+    transition: color 0.3s ease;
+}
+
+.currentProject.dark .infoItem strong {
+    color: #11012E;
+}
+
+.currentProject.light .infoItem strong {
+    color: #FBFF00;
 }
 
 .answersSection {
-    background: #f8f8f8;
     padding: 20px;
     border-radius: 10px;
-    border: 2px solid #11012E;
+    border: 2px solid;
+    transition: all 0.3s ease;
+}
+
+.currentProject.dark .answersSection {
+    background: #f8f8f8;
+    border-color: #11012E;
+}
+
+.currentProject.light .answersSection {
+    background: rgba(251, 255, 0, 0.2);
+    border-color: #FBFF00;
 }
 
 .answersSection h4 {
     font-size: 20px;
     font-weight: 700;
-    color: #11012E;
     margin-bottom: 15px;
     text-align: center;
+    transition: color 0.3s ease;
+}
+
+.currentProject.dark .answersSection h4 {
+    color: #11012E;
+}
+
+.currentProject.light .answersSection h4 {
+    color: #FBFF00;
 }
 
 .answerItem {
     margin-bottom: 12px;
     padding: 10px 0;
-    border-bottom: 1px solid #ddd;
+    border-bottom: 1px solid;
     display: flex;
     justify-content: space-between;
+    transition: border-color 0.3s ease;
+}
+
+.currentProject.dark .answerItem {
+    border-bottom-color: #ddd;
+}
+
+.currentProject.light .answerItem {
+    border-bottom-color: #666;
 }
 
 .answerItem:last-child {
@@ -242,8 +410,16 @@
 }
 
 .answerItem strong {
-    color: #11012E;
     margin-right: 10px;
+    transition: color 0.3s ease;
+}
+
+.currentProject.dark .answerItem strong {
+    color: #11012E;
+}
+
+.currentProject.light .answerItem strong {
+    color: #FBFF00;
 }
 
 .generatedResult {
@@ -254,16 +430,33 @@
 .generatedResult h4 {
     font-size: 20px;
     font-weight: 700;
-    color: #11012E;
     margin-bottom: 15px;
+    transition: color 0.3s ease;
+}
+
+.currentProject.dark .generatedResult h4 {
+    color: #11012E;
+}
+
+.currentProject.light .generatedResult h4 {
+    color: #FBFF00;
 }
 
 .generatedImage {
     max-width: 100%;
     max-height: 250px;
     border-radius: 12px;
-    border: 3px solid #11012E;
+    border: 3px solid;
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    transition: border-color 0.3s ease;
+}
+
+.currentProject.dark .generatedImage {
+    border-color: #11012E;
+}
+
+.currentProject.light .generatedImage {
+    border-color: #FBFF00;
 }
 
 .noProject {
@@ -273,9 +466,17 @@
 
 .noProject p {
     font-size: 20px;
-    color: #666;
     margin-bottom: 25px;
     font-weight: 600;
+    transition: color 0.3s ease;
+}
+
+.currentProject.dark .noProject p {
+    color: #666;
+}
+
+.currentProject.light .noProject p {
+    color: #aaa;
 }
 
 .createProjectBtn {
@@ -298,20 +499,36 @@
 }
 
 .actionsSection {
-    background: rgba(255, 255, 255, 0.95);
     padding: 30px;
     border-radius: 20px;
     border: 3px solid #FF018F;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+}
+
+.actionsSection.dark {
+    background: rgba(255, 255, 255, 0.95);
+}
+
+.actionsSection.light {
+    background: rgba(17, 1, 46, 0.95);
 }
 
 .actionsSection h3 {
     font-size: 28px;
     font-weight: 800;
-    color: #11012E;
     margin-bottom: 25px;
     text-align: center;
     text-transform: uppercase;
+    transition: color 0.3s ease;
+}
+
+.actionsSection.dark h3 {
+    color: #11012E;
+}
+
+.actionsSection.light h3 {
+    color: #FBFF00;
 }
 
 .actionsGrid {
@@ -325,7 +542,6 @@
     flex-direction: column;
     align-items: center;
     padding: 25px 20px;
-    background: linear-gradient(135deg, #11012E, #1a0145);
     border: 3px solid #FF018F;
     border-radius: 15px;
     color: #FBFF00;
@@ -337,6 +553,15 @@
     text-align: center;
     min-height: 120px;
     justify-content: center;
+}
+
+.actionBtn.dark {
+    background: linear-gradient(135deg, #11012E, #1a0145);
+}
+
+.actionBtn.light {
+    background: linear-gradient(135deg, #FBFF00, #e6ea00);
+    color: #11012E;
 }
 
 .actionBtn:hover {
@@ -360,6 +585,18 @@
     margin-bottom: 12px;
 }
 
+.themeText {
+    transition: color 0.3s ease;
+}
+
+.dark .themeText {
+    color: #FBFF00;
+}
+
+.light .themeText {
+    color: #11012E;
+}
+
 /* Адаптивность */
 @media (max-width: 768px) {
     .profileContainer {
@@ -378,7 +615,7 @@
     
     .avatarSection {
         border-right: none;
-        border-bottom: 2px dashed #11012E;
+        border-bottom: 2px dashed;
         padding-bottom: 20px;
         margin-bottom: 20px;
     }

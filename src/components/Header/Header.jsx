@@ -4,6 +4,8 @@ import { toggleTheme } from '../../store/slices/themeSlice'
 import { logout } from '../../store/slices/authSlice'
 import { Link, useLocation } from 'react-router-dom'
 import styles from './Header.module.css'
+import logoDark from '../../images/header/logoDark.png'
+import logoLight from '../../images/header/logoLight.png'
 
 const Header = () => {
   const dispatch = useDispatch()
@@ -19,20 +21,23 @@ const Header = () => {
     dispatch(logout())
   }
 
-  // Определяем, находимся ли мы на главной странице
   const isMainPage = location.pathname === '/'
+  const themeClass = isDark ? styles.dark : styles.light
 
   return (
-    <header className={styles.headerBlock}>
+    <header className={`${styles.headerBlock} ${themeClass}`}>
       <div className={styles.headerContainer}>
         <div className={styles.headerContent}>
           <img 
-            src={isDark ? '../../images/header/logoDark.png' : '../../images/header/logoLight.png'} 
+            src={isDark ? logoDark : logoLight}  
             className={styles.headerLogo} 
             alt="Art Painting Constructor" 
           />
           <div className={styles.headerButtons}>
-            <Link to="/" className={`${styles.headerBtn} ${isMainPage ? styles.active : ''}`}>
+            <Link 
+              to="/" 
+              className={`${styles.headerBtn} ${isMainPage ? styles.active : ''}`}
+            >
               ГЛАВНАЯ
             </Link>
             {isAuthenticated ? (

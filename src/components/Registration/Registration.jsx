@@ -1,14 +1,15 @@
 import React, { useState } from 'react'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate, Link } from 'react-router-dom'
-import { register } from '../../store/slices/authSlice.js'
-import Header from '../Header/Header.jsx'
-import Footer from '../Footer/Footer.jsx'
+import { register } from '../../store/slices/authSlice'
+import Header from '../../components/Header/Header'
+import Footer from '../../components/Footer/Footer'
 import styles from './Registration.module.css'
 
 const Registration = () => {
   const dispatch = useDispatch()
   const navigate = useNavigate()
+  const { isDark } = useSelector((state) => state.theme)
   const [formData, setFormData] = useState({
     username: '',
     phone: '',
@@ -63,29 +64,33 @@ const Registration = () => {
     e.preventDefault()
     
     if (validateForm()) {
-      // Здесь должна быть реальная логика регистрации
       const userData = {
         username: formData.username,
         email: formData.email,
         phone: formData.phone,
+        id: Date.now()
       }
       dispatch(register(userData))
       navigate('/')
     }
   }
 
+  const themeClass = isDark ? styles.dark : styles.light
+
   return (
     <div>
       <Header />
       <div className={styles.container}>
         <div className={styles.mainContent}>
-          <div className={styles.registrationContainer}>
+          <div className={`${styles.registrationContainer} ${themeClass}`}>
             <h1 className={styles.registrationHeader}>РЕГИСТРАЦИЯ</h1>
             
             <form onSubmit={handleSubmit} className={styles.form}>
               <div className={styles.formGroup}>
                 <input
-                  className={`${styles.registerTextInput} ${errors.username ? styles.error : ''}`}
+                  className={`${styles.registerTextInput} ${themeClass} ${
+                    errors.username ? styles.error : ''
+                  }`}
                   type="text"
                   name="username"
                   value={formData.username}
@@ -98,7 +103,9 @@ const Registration = () => {
               
               <div className={styles.formGroup}>
                 <input
-                  className={`${styles.registerTextInput} ${errors.phone ? styles.error : ''}`}
+                  className={`${styles.registerTextInput} ${themeClass} ${
+                    errors.phone ? styles.error : ''
+                  }`}
                   type="tel"
                   name="phone"
                   value={formData.phone}
@@ -111,7 +118,9 @@ const Registration = () => {
               
               <div className={styles.formGroup}>
                 <input
-                  className={`${styles.registerTextInput} ${errors.email ? styles.error : ''}`}
+                  className={`${styles.registerTextInput} ${themeClass} ${
+                    errors.email ? styles.error : ''
+                  }`}
                   type="email"
                   name="email"
                   value={formData.email}
@@ -124,7 +133,9 @@ const Registration = () => {
               
               <div className={styles.formGroup}>
                 <input
-                  className={`${styles.registerTextInput} ${errors.password ? styles.error : ''}`}
+                  className={`${styles.registerTextInput} ${themeClass} ${
+                    errors.password ? styles.error : ''
+                  }`}
                   type="password"
                   name="password"
                   value={formData.password}
@@ -137,7 +148,9 @@ const Registration = () => {
               
               <div className={styles.formGroup}>
                 <input
-                  className={`${styles.registerTextInput} ${errors.confirmPassword ? styles.error : ''}`}
+                  className={`${styles.registerTextInput} ${themeClass} ${
+                    errors.confirmPassword ? styles.error : ''
+                  }`}
                   type="password"
                   name="confirmPassword"
                   value={formData.confirmPassword}
@@ -145,7 +158,9 @@ const Registration = () => {
                   placeholder="Повторите пароль"
                   required
                 />
-                {errors.confirmPassword && <span className={styles.errorText}>{errors.confirmPassword}</span>}
+                {errors.confirmPassword && (
+                  <span className={styles.errorText}>{errors.confirmPassword}</span>
+                )}
               </div>
               
               <button type="submit" className={styles.btnRegisterSubmit}>
@@ -153,7 +168,9 @@ const Registration = () => {
               </button>
               
               <div className={styles.formLoginQuestion}>
-                <p>Уже есть аккаунт? <Link to="/login">Войти</Link></p>
+                <p className={styles.themeText}>
+                  Уже есть аккаунт? <Link to="/login">Войти</Link>
+                </p>
               </div>
             </form>
           </div>
