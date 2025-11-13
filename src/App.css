@@ -1,38 +1,709 @@
-.App {
-  text-align: center;
+/* Подключение шрифтов JetBrains Mono */
+@font-face {
+    font-family: 'JetBrains Mono';
+    src: url('./fonts/JetBrainsMono-Thin.woff2') format('woff2');
+    font-weight: 100;
+    font-style: normal;
+    font-display: swap;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+@font-face {
+    font-family: 'JetBrains Mono';
+    src: url('./fonts/JetBrainsMono-ThinItalic.woff2') format('woff2');
+    font-weight: 100;
+    font-style: italic;
+    font-display: swap;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+@font-face {
+    font-family: 'JetBrains Mono';
+    src: url('./fonts/JetBrainsMono-ExtraLight.woff2') format('woff2');
+    font-weight: 200;
+    font-style: normal;
+    font-display: swap;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+@font-face {
+    font-family: 'JetBrains Mono';
+    src: url('./fonts/JetBrainsMono-ExtraLightItalic.woff2') format('woff2');
+    font-weight: 200;
+    font-style: italic;
+    font-display: swap;
 }
 
-.App-link {
-  color: #61dafb;
+@font-face {
+    font-family: 'JetBrains Mono';
+    src: url('fonts/JetBrainsMono-Light.woff2') format('woff2');
+    font-weight: 300;
+    font-style: normal;
+    font-display: swap;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+@font-face {
+    font-family: 'JetBrains Mono';
+    src: url('fonts/JetBrainsMono-LightItalic.woff2') format('woff2');
+    font-weight: 300;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'JetBrains Mono';
+    src: url('fonts/JetBrainsMono-Regular.woff2') format('woff2');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'JetBrains Mono';
+    src: url('fonts/JetBrainsMono-Italic.woff2') format('woff2');
+    font-weight: 400;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'JetBrains Mono';
+    src: url('fonts/JetBrainsMono-Medium.woff2') format('woff2');
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'JetBrains Mono';
+    src: url('fonts/JetBrainsMono-MediumItalic.woff2') format('woff2');
+    font-weight: 500;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'JetBrains Mono';
+    src: url('fonts/JetBrainsMono-SemiBold.woff2') format('woff2');
+    font-weight: 600;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'JetBrains Mono';
+    src: url('fonts/JetBrainsMono-SemiBoldItalic.woff2') format('woff2');
+    font-weight: 600;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'JetBrains Mono';
+    src: url('fonts/JetBrainsMono-Bold.woff2') format('woff2');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'JetBrains Mono';
+    src: url('fonts/JetBrainsMono-BoldItalic.woff2') format('woff2');
+    font-weight: 700;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'JetBrains Mono';
+    src: url('fonts/JetBrainsMono-ExtraBold.woff2') format('woff2');
+    font-weight: 800;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'JetBrains Mono';
+    src: url('fonts/JetBrainsMono-ExtraBoldItalic.woff2') format('woff2');
+    font-weight: 800;
+    font-style: italic;
+    font-display: swap;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'JetBrains Mono', Arial, sans-serif;
+}
+
+body {
+    background-color: #11012E;
+    color: #333;
+    line-height: 1.6;
+    font-weight: 500; /* Medium по умолчанию */
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* Header styles */
+.header-block {
+    background-color: #11012E;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    padding: 100px 0;
+    position: relative;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-image: url('Экспорты 2/Главные страницы/Шапка/Город силуэт.png');
+    min-height: 450px;
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+}
+
+.header-container {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Заголовок 1 уровня - Название проекта */
+.header-logo {
+    align-self: flex-start;
+}
+
+.header-buttons {
+    display: flex;
+    gap: 15px;
+}
+
+/* Кнопки дефолт */
+.btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 28px;
+    line-height: 100%;
+    transition: background-color 0.3s;
+    font-family: 'JetBrains Mono', Arial, sans-serif;
+    font-weight: 700; /* Bold */
+    -webkit-text-stroke: 0;
+    text-stroke: 0;
+}
+
+.btn-login {
+    background-color: #FF018F;
+    border: 3px solid #000000;
+    border-radius: 30px;
+    color:#ffffff;
+    text-decoration: none;
+}
+
+.btn-register {
+    background-color: #FF018F;
+    border: 3px solid #000000;
+    border-radius: 30px;
+    color:#ffffff;
+    text-decoration: none;
+}
+
+
+.btn-mainPage {
+    background-color: #FF018F;
+    border: 3px solid #000000;
+    border-radius: 30px;
+    color:#ffffff;
+    text-decoration: none;
+}
+
+.btn-theme {
+    width: 75px;
+    border: 3px solid #000000;
+    border-radius: 30px;
+    color:#ffffff;
+    background-color: #FF018F;
+    background-image: url('images/header/changeThemeButton.png');
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.btn-register-submit {
+    background-color: #FF018F;
+    color: black;
+    width: 100%;
+    padding: 12px;
+    border: 3px solid black;
+    border-radius: 4px;
+    cursor: pointer;
+    text-transform: uppercase;
+    font-family: 'JetBrains Mono', Arial, sans-serif;
+    font-weight: 700; /* Bold */
+    font-size: 20px;
+    line-height: 100%;
+    -webkit-text-stroke: 0;
+    text-stroke: 0;
+    margin-top: 30px;
+    margin-bottom: 30px;
+}
+
+.btn-login-submit {
+    background-color: #FF018F;
+    color: black;
+    width: 100%;
+    padding: 12px;
+    border: 3px solid black;
+    border-radius: 4px;
+    cursor: pointer;
+    text-transform: uppercase;
+    font-family: 'JetBrains Mono', Arial, sans-serif;
+    font-weight: 700; /* Bold */
+    font-size: 20px;
+    line-height: 100%;
+    -webkit-text-stroke: 0;
+    text-stroke: 0;
+    margin-top: 30px;
+    margin-bottom: 50px;
+}
+
+/* Main content styles */
+.main-content {
+    display: flex;
+    gap: 30px;
+    margin-top: 30px;
+}
+
+.left-column {
+    flex: 1;
+    background-color: #11012E;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.right-column {
+    flex: 1;
+    background-color: #11012E;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+/* Заголовок 2 уровня */
+.section-title {
+    margin-top: 100px;
+    font-size: 60px;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+    font-weight: 800; /* ExtraBold */
+    font-style: italic;
+    line-height: 110%;
+    color:#FBFF00;
+}
+
+.section-title-question {
+    text-align: center;
+    margin-top: 50px;
+}
+
+.section-title-form {
+    text-align: center;
+    margin-top: 200px;
+}
+
+/* Мелкий шрифт - тексты под заголовками */
+.info-text {
+    margin-bottom: 20px;
+    font-size: 18px;
+    font-weight: 500; /* Medium */
+    font-style: italic;
+    line-height: 150%;
+    color:#FBFF00;
+}
+
+/* Photo upload section */
+.photo-upload {
+    margin-bottom: 20px;
+}
+
+.file-input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-family: 'JetBrains Mono', Arial, sans-serif;
+    color:#FBFF00;
+}
+
+/* Кнопка "Выбор файла" и "Отправить запрос" */
+.upload-btn, .submit-btn {
+    background-color: #FF018F;
+    color: black;
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    text-transform: uppercase;
+    font-family: 'JetBrains Mono', Arial, sans-serif;
+    font-weight: 700; /* Bold */
+    font-size: 20px;
+    line-height: 100%;
+    -webkit-text-stroke: 0;
+    text-stroke: 0;
+}
+
+
+/* Frame selection */
+.frame-selection {
+    margin-top: 30px;
+    margin-bottom: 30px;
+}
+
+.frame-selection h3 {
+    font-size: 60px; /* Заголовок 2 уровня */
+    font-weight: 800; /* ExtraBold */
+    font-style: italic;
+    line-height: 110%;
+    margin-bottom: 15px;
+    color:#11012E;
+    text-transform: uppercase;
+}
+
+.frames {
+    display: flex;
+    gap: 5px;
+    margin-top: 10px;
+}
+
+.frame {
+    flex: 1;
+    height: 150px;
+    width: 250px;
+    border: 1px solid #333;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-family: 'JetBrains Mono', Arial, sans-serif;
+    font-size: 18px; /* Подписи для рамок */
+    font-weight: 800; /* ExtraBold */
+    font-style: italic;
+    line-height: 110%;
+    color:#FBFF00;
+    margin: 10px;
+    background-color: #11012E;
+}
+
+.frame.selected {
+    border-color: #333;
+}
+
+.photo-block {
+    background-image:url('images/mainPage/heroDark.png'), url('images/mainPage/injunDark.png'), url('images/mainPage/placeholderDark.png');
+    background-position: 0 50%, 100% 50%, 50% 50%;
+    background-repeat: no-repeat, no-repeat, repeat;
+    width: 600px;
+    height: 800px;
+    padding-top: 10px;
+    padding-left: 50px;
+    padding-right: 50px;
+}
+
+/* Photo preview */
+.photo-preview h3 {
+    font-size: 60px; /* Заголовок 2 уровня */
+    font-weight: 800; /* ExtraBold */
+    font-style: italic;
+    line-height: 110%;
+    margin: 20px;
+    color:#11012E;
+    text-transform: uppercase;
+}
+
+.result-photo-placeholder {
+    height: 370px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 20px;
+    font-family: 'JetBrains Mono', Arial, sans-serif;
+    background-color: #11012E;
+}
+
+.uploaded-photo {
+    max-width: 100%;
+    max-height: 400px;
+    border-radius: 4px;
+    background-color: transparent;
+}
+
+.preset-cowboy {
+    margin-top: 50px;
+    max-height: 350px;
+}
+
+.preset-dragon {
+    max-height: 550px;
+}
+
+.line {
+    border-color:#FBFF00;
+    height: 10px;
+    background-color: #FBFF00;
+    border-radius: 10px;
+}
+
+.questionnaire {
+    background-image: url('images/mainPage/placeholderDark.png');
+    margin-top: 50px;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+}
+/* Questionnaire styles */
+.question {
+    margin-bottom: 15px;
+    color:#11012E;
+}
+
+/* Мелкий шрифт - тексты вопросов */
+.question label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 500; /* Medium */
+    font-style: italic;
+    font-size: 18px;
+    line-height: 150%;
+}
+
+.options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+/* Тексты радиокнопок в анкете */
+.option {
+    padding: 5px 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: 'JetBrains Mono', Arial, sans-serif;
+    font-weight: 500; /* Medium */
+    font-style: italic;
+    font-size: 14px;
+    line-height: 150%;
+    -webkit-text-stroke: 0;
+    text-stroke: 0;
+}
+
+.option.selected {
+    background-color: #FF018F;
+    color: black;
+}
+
+.text-input {
+    width: 100%;
+    height: 150px;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-family: 'JetBrains Mono', Arial, sans-serif;
+}
+
+/* Generation section */
+.generation-section {
+    text-align: center;
+    margin-top: 30px;
+    color: #FBFF00;
+}
+
+.generate-btn {
+    background-color: #FF018F;
+    color: black;
+    padding: 12px 30px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    text-transform: uppercase;
+    font-size: 28px; /* Кнопки дефолт */
+    line-height: 100%;
+    font-family: 'JetBrains Mono', Arial, sans-serif;
+    font-weight: 700; /* Bold */
+    -webkit-text-stroke: 0;
+    text-stroke: 0;
+}
+
+.result-generation-placeholder {
+    height: 600px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'JetBrains Mono', Arial, sans-serif;
+    background-image: url('images/mainPage/generationPlaceholderDark.png'), url('images/mainPage/astronautDark.png'), url('images/mainPage/knightDark.png');
+    background-repeat: no-repeat;
+    background-position: center, left, right;
+}
+
+/* Footer styles */
+footer {
+    background-color: #11012E;
+    color: #FBFF00;
+    padding: 20px 0;
+    margin-top: 50px;
+    background-image: url('images/footer/footer.png');
+    background-size: contain; /* Добавляем cover для масштабирования */
+    background-position: center center; /* Центрируем изображение */
+    width: 100%;
+    min-height: 300px;
+}
+
+/* Контент футера поверх изображения */
+footer .footer-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    font-family: 'JetBrains Mono', Arial, sans-serif;
+    font-weight: 700; /* Bold */
+    font-size: 48px;
+    line-height: 100%;
+    -webkit-text-stroke: 1px black;
+    margin-top: 100px;
+}
+
+.form-group {
+    margin: 10px;
+    align-self: center;
+    text-align: center;
+}
+
+.form-login-question {
+    margin-top: 10px;
+    margin-bottom: 40px;
+    align-self: center;
+    text-align: center;
+}
+
+.registration-container {
+    background-image: url('Экспорты 2/Регистрация/Темная/Пустой блок регистрации.png');
+    background-position: center;
+    background-size: cover;
+    border-radius: 30px;
+    height: 100%;
+    width: 50%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.login-container {
+    background-image: url('Экспорты 2/Вход/Темный/Пустой блок входа.png');
+    background-position: center;
+    background-size: cover;
+    border-radius: 30px;
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.registration-header {
+    margin-top: 15px;
+    text-align: center;
+    color: #000;
+}
+
+.register-text-input {
+    padding: 15px;
+    margin: 10px;
+    width: 500px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.login-text-input {
+    padding: 15px;
+    margin: 10px;
+    width: 300px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+
+/* Адаптивность для футера */
+@media (max-width: 768px) {
+    footer {
+        background-size: cover; /* или contain в зависимости от предпочтений */
+        min-height: 150px; /* Минимальная высота для мобильных */
+    }
+    
+    .footer-content {
+        font-size: 32px;
+        padding: 15px 0;
+    }
+}
+
+/* Для очень маленьких экранов */
+@media (max-width: 480px) {
+    footer {
+        min-height: 120px;
+    }
+    
+    .footer-content {
+        font-size: 24px;
+    }
+}
+
+@media (max-width: 768px) {
+    header.with-bg-image {
+        min-height: 70vh;
+    }
+    
+    header.with-bg-image .logo {
+        font-size: 48px;
+    }
+    
+    .header-content {
+        flex-direction: column;
+        gap: 20px;
+        text-align: center;
+    }
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+    .main-content {
+        flex-direction: column;
+    }
+    
+    .nav-menu {
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .logo {
+        font-size: 60px;
+    }
+    
+    .section-title {
+        font-size: 40px;
+    }
+    
+    .btn, .nav-menu a, .generate-btn {
+        font-size: 20px;
+    }
+    
+    .footer-content {
+        font-size: 32px;
+    }
 }

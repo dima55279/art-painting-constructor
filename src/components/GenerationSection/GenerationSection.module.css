@@ -1,0 +1,172 @@
+/* GenerationSection/GenerationSection.module.css */
+
+.generationSection {
+    text-align: center;
+    margin-top: 60px;
+    color: #FBFF00;
+    padding: 40px 20px;
+    background: rgba(17, 1, 46, 0.9);
+    border-radius: 15px;
+    border: 3px solid #FF018F;
+}
+
+.sectionTitle {
+    font-size: 52px;
+    margin-bottom: 30px;
+    text-transform: uppercase;
+    font-weight: 800;
+    font-style: italic;
+    line-height: 110%;
+}
+
+.generationSection h3 {
+    font-size: 32px;
+    margin-bottom: 25px;
+    font-weight: 700;
+    color: #FBFF00;
+    text-transform: uppercase;
+}
+
+.resultGenerationPlaceholder {
+    height: 500px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'JetBrains Mono', Arial, sans-serif;
+    background-image: url('../../images/mainPage/generationPlaceholderDark.png'), 
+                     url('../../images/mainPage/astronautDark.png'), 
+                     url('../../images/mainPage/knightDark.png');
+    background-repeat: no-repeat;
+    background-position: center, left bottom, right bottom;
+    background-size: 300px, 150px, 150px;
+    margin: 30px 0;
+    border-radius: 12px;
+    border: 2px solid #FBFF00;
+    position: relative;
+    overflow: hidden;
+}
+
+.generatedImage {
+    max-width: 90%;
+    max-height: 90%;
+    object-fit: contain;
+    border-radius: 8px;
+    border: 3px solid #FF018F;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.placeholderContent {
+    font-size: 28px;
+    color: #FBFF00;
+    font-weight: 600;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.generateBtn {
+    background-color: #FF018F;
+    color: black;
+    padding: 18px 40px;
+    border: 3px solid black;
+    border-radius: 8px;
+    cursor: pointer;
+    text-transform: uppercase;
+    font-size: 28px;
+    line-height: 100%;
+    font-family: 'JetBrains Mono', Arial, sans-serif;
+    font-weight: 700;
+    transition: all 0.3s ease;
+    margin-top: 20px;
+}
+
+.generateBtn:hover:not(:disabled) {
+    background-color: #e0017d;
+    transform: translateY(-3px);
+    box-shadow: 0 15px 30px rgba(255, 1, 143, 0.4);
+}
+
+.generateBtn:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.loadingSpinner {
+    border: 5px solid #f3f3f3;
+    border-top: 5px solid #FF018F;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    animation: spin 1s linear infinite;
+    margin: 20px auto;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .generationSection {
+        padding: 30px 15px;
+        margin-top: 40px;
+    }
+    
+    .sectionTitle {
+        font-size: 40px;
+        margin-bottom: 20px;
+    }
+    
+    .generationSection h3 {
+        font-size: 24px;
+    }
+    
+    .resultGenerationPlaceholder {
+        height: 350px;
+        background-size: 200px, 100px, 100px;
+    }
+    
+    .placeholderContent {
+        font-size: 22px;
+    }
+    
+    .generateBtn {
+        padding: 15px 30px;
+        font-size: 22px;
+    }
+}
+
+@media (max-width: 480px) {
+    .generationSection {
+        padding: 20px 10px;
+    }
+    
+    .sectionTitle {
+        font-size: 32px;
+    }
+    
+    .generationSection h3 {
+        font-size: 20px;
+    }
+    
+    .resultGenerationPlaceholder {
+        height: 250px;
+        background-size: 150px, 80px, 80px;
+    }
+    
+    .placeholderContent {
+        font-size: 18px;
+    }
+    
+    .generateBtn {
+        padding: 12px 24px;
+        font-size: 18px;
+    }
+    
+    .loadingSpinner {
+        width: 40px;
+        height: 40px;
+        border-width: 4px;
+    }
+}

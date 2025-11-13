@@ -1,0 +1,142 @@
+.photoUpload {
+    margin-bottom: 30px;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    border: 2px solid #FF018F;
+}
+
+.fileInput {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 15px;
+    border: 2px dashed #FBFF00;
+    border-radius: 8px;
+    background-color: rgba(251, 255, 0, 0.1);
+    color: #FBFF00;
+    font-family: 'JetBrains Mono', Arial, sans-serif;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.fileInput:hover {
+    background-color: rgba(251, 255, 0, 0.2);
+    border-color: #FF018F;
+}
+
+.fileInput::file-selector-button {
+    background-color: #FF018F;
+    color: black;
+    border: 2px solid black;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: 'JetBrains Mono', Arial, sans-serif;
+    font-weight: 700;
+    margin-right: 10px;
+    transition: background-color 0.3s;
+}
+
+.fileInput::file-selector-button:hover {
+    background-color: #e0017d;
+}
+
+.uploadBtn {
+    background-color: #FF018F;
+    color: black;
+    width: 100%;
+    padding: 15px;
+    border: 3px solid black;
+    border-radius: 8px;
+    cursor: pointer;
+    text-transform: uppercase;
+    font-family: 'JetBrains Mono', Arial, sans-serif;
+    font-weight: 700;
+    font-size: 20px;
+    line-height: 100%;
+    transition: all 0.3s ease;
+}
+
+.uploadBtn:hover {
+    background-color: #e0017d;
+    transform: translateY(-2px);
+}
+
+.uploadBtn:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.photoPreview {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.photoPreview h3 {
+    font-size: 24px;
+    font-weight: 700;
+    color: #FBFF00;
+    margin-bottom: 15px;
+    text-transform: uppercase;
+}
+
+.resultPhotoPlaceholder {
+    height: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(17, 1, 46, 0.8);
+    border: 2px solid #FBFF00;
+    border-radius: 8px;
+    margin: 0 auto;
+    overflow: hidden;
+}
+
+.uploadedPhoto {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    border-radius: 6px;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .photoUpload {
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+    
+    .uploadBtn {
+        padding: 12px;
+        font-size: 18px;
+    }
+    
+    .resultPhotoPlaceholder {
+        height: 250px;
+    }
+    
+    .photoPreview h3 {
+        font-size: 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .photoUpload {
+        padding: 10px;
+    }
+    
+    .fileInput {
+        padding: 10px;
+    }
+    
+    .uploadBtn {
+        padding: 10px;
+        font-size: 16px;
+    }
+    
+    .resultPhotoPlaceholder {
+        height: 200px;
+    }
+}

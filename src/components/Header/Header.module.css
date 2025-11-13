@@ -1,0 +1,120 @@
+/* Header/Header.module.css */
+
+.headerBlock {
+    background-color: #11012E;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    padding: 100px 0;
+    position: relative;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-image: url('../../images/header/header.png');
+    min-height: 450px;
+}
+
+.headerContent {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.headerContainer {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.headerLogo {
+    align-self: flex-start;
+    max-height: 80px;
+}
+
+.headerButtons {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+.headerBtn {
+    padding: 8px 16px;
+    border: 3px solid #000000;
+    border-radius: 30px;
+    background-color: #FF018F;
+    color: #ffffff;
+    text-decoration: none;
+    font-size: 28px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'JetBrains Mono', Arial, sans-serif;
+}
+
+.headerBtn:hover {
+    background-color: #e0017d;
+    transform: translateY(-2px);
+}
+
+.themeBtn {
+    width: 75px;
+    height: 45px;
+    background-image: url('../../images/header/changeThemeButton.png');
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 60%;
+    border: 3px solid #000000;
+    border-radius: 30px;
+    background-color: #FF018F;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.themeBtn:hover {
+    background-color: #e0017d;
+    transform: translateY(-2px);
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .headerBlock {
+        padding: 50px 0;
+        min-height: 300px;
+        background-size: cover;
+    }
+    
+    .headerContent {
+        flex-direction: column;
+        gap: 20px;
+    }
+    
+    .headerButtons {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    
+    .headerBtn {
+        font-size: 20px;
+        padding: 6px 12px;
+    }
+    
+    .headerLogo {
+        align-self: center;
+        max-height: 60px;
+    }
+}
+
+@media (max-width: 480px) {
+    .headerBlock {
+        padding: 30px 0;
+        min-height: 250px;
+    }
+    
+    .headerBtn {
+        font-size: 16px;
+        padding: 5px 10px;
+    }
+    
+    .themeBtn {
+        width: 60px;
+        height: 35px;
+    }
+}

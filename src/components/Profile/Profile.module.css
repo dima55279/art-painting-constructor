@@ -1,0 +1,453 @@
+/* Profile/Profile.module.css */
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.mainContent {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 80vh;
+    padding: 50px 0;
+}
+
+.profileContainer {
+    background-image: url('../../images/registration/registrationDark.png');
+    background-position: center;
+    background-size: cover;
+    border-radius: 30px;
+    width: 100%;
+    max-width: 1000px;
+    padding: 50px 40px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    border: 4px solid #FF018F;
+}
+
+.profileHeader {
+    text-align: center;
+    color: #000;
+    font-size: 42px;
+    font-weight: 800;
+    margin-bottom: 40px;
+    text-transform: uppercase;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.profileInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.userCard {
+    display: flex;
+    gap: 30px;
+    background: rgba(255, 255, 255, 0.95);
+    padding: 30px;
+    border-radius: 20px;
+    border: 3px solid #FF018F;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.avatarSection {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 20px;
+    border-right: 2px dashed #11012E;
+}
+
+.avatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #FF018F, #FBFF00);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 48px;
+    font-weight: 800;
+    color: #11012E;
+    margin-bottom: 20px;
+    border: 4px solid #11012E;
+    box-shadow: 0 8px 20px rgba(255, 1, 143, 0.3);
+}
+
+.username {
+    font-size: 28px;
+    font-weight: 800;
+    color: #11012E;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+}
+
+.userEmail,
+.userPhone {
+    font-size: 16px;
+    color: #666;
+    margin-bottom: 8px;
+    font-weight: 600;
+}
+
+.statsSection {
+    flex: 2;
+    padding: 20px;
+}
+
+.statsSection h3 {
+    font-size: 28px;
+    font-weight: 800;
+    color: #11012E;
+    margin-bottom: 25px;
+    text-align: center;
+    text-transform: uppercase;
+}
+
+.statsGrid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
+.statItem {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    background: linear-gradient(135deg, #11012E, #1a0145);
+    border-radius: 15px;
+    border: 2px solid #FF018F;
+    transition: all 0.3s ease;
+}
+
+.statItem:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(255, 1, 143, 0.3);
+}
+
+.statNumber {
+    font-size: 36px;
+    font-weight: 800;
+    color: #FBFF00;
+    margin-bottom: 8px;
+}
+
+.statLabel {
+    font-size: 14px;
+    color: #FBFF00;
+    text-align: center;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.currentProject {
+    background: rgba(255, 255, 255, 0.95);
+    padding: 30px;
+    border-radius: 20px;
+    border: 3px solid #FF018F;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.currentProject h3 {
+    font-size: 28px;
+    font-weight: 800;
+    color: #11012E;
+    margin-bottom: 25px;
+    text-align: center;
+    text-transform: uppercase;
+}
+
+.projectDetails {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 30px;
+}
+
+.projectPreview {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.projectPreview h4 {
+    font-size: 20px;
+    font-weight: 700;
+    color: #11012E;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.projectImage {
+    max-width: 250px;
+    max-height: 250px;
+    border-radius: 12px;
+    border: 3px solid #11012E;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+.projectInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.infoItem {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    background: #f8f8f8;
+    border-radius: 10px;
+    border: 2px solid #11012E;
+}
+
+.infoItem strong {
+    color: #11012E;
+    font-weight: 700;
+}
+
+.answersSection {
+    background: #f8f8f8;
+    padding: 20px;
+    border-radius: 10px;
+    border: 2px solid #11012E;
+}
+
+.answersSection h4 {
+    font-size: 20px;
+    font-weight: 700;
+    color: #11012E;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.answerItem {
+    margin-bottom: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid #ddd;
+    display: flex;
+    justify-content: space-between;
+}
+
+.answerItem:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+}
+
+.answerItem strong {
+    color: #11012E;
+    margin-right: 10px;
+}
+
+.generatedResult {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.generatedResult h4 {
+    font-size: 20px;
+    font-weight: 700;
+    color: #11012E;
+    margin-bottom: 15px;
+}
+
+.generatedImage {
+    max-width: 100%;
+    max-height: 250px;
+    border-radius: 12px;
+    border: 3px solid #11012E;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+.noProject {
+    text-align: center;
+    padding: 50px;
+}
+
+.noProject p {
+    font-size: 20px;
+    color: #666;
+    margin-bottom: 25px;
+    font-weight: 600;
+}
+
+.createProjectBtn {
+    background-color: #FF018F;
+    color: black;
+    padding: 15px 30px;
+    border: 3px solid black;
+    border-radius: 30px;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 18px;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+}
+
+.createProjectBtn:hover {
+    background-color: #e0017d;
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(255, 1, 143, 0.4);
+}
+
+.actionsSection {
+    background: rgba(255, 255, 255, 0.95);
+    padding: 30px;
+    border-radius: 20px;
+    border: 3px solid #FF018F;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.actionsSection h3 {
+    font-size: 28px;
+    font-weight: 800;
+    color: #11012E;
+    margin-bottom: 25px;
+    text-align: center;
+    text-transform: uppercase;
+}
+
+.actionsGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+.actionBtn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 25px 20px;
+    background: linear-gradient(135deg, #11012E, #1a0145);
+    border: 3px solid #FF018F;
+    border-radius: 15px;
+    color: #FBFF00;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+    min-height: 120px;
+    justify-content: center;
+}
+
+.actionBtn:hover {
+    background: linear-gradient(135deg, #FF018F, #e0017d);
+    color: #000;
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(255, 1, 143, 0.4);
+}
+
+.actionBtn.danger {
+    border-color: #ff0000;
+}
+
+.actionBtn.danger:hover {
+    background: linear-gradient(135deg, #ff0000, #cc0000);
+    color: white;
+}
+
+.actionIcon {
+    font-size: 36px;
+    margin-bottom: 12px;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .profileContainer {
+        padding: 30px 20px;
+    }
+    
+    .profileHeader {
+        font-size: 32px;
+        margin-bottom: 30px;
+    }
+    
+    .userCard {
+        flex-direction: column;
+        padding: 20px;
+    }
+    
+    .avatarSection {
+        border-right: none;
+        border-bottom: 2px dashed #11012E;
+        padding-bottom: 20px;
+        margin-bottom: 20px;
+    }
+    
+    .statsGrid {
+        grid-template-columns: 1fr;
+    }
+    
+    .projectDetails {
+        grid-template-columns: 1fr;
+    }
+    
+    .actionsGrid {
+        grid-template-columns: 1fr;
+    }
+    
+    .infoItem {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+    
+    .answerItem {
+        flex-direction: column;
+        gap: 5px;
+    }
+}
+
+@media (max-width: 480px) {
+    .profileContainer {
+        padding: 20px 15px;
+    }
+    
+    .profileHeader {
+        font-size: 24px;
+    }
+    
+    .avatar {
+        width: 80px;
+        height: 80px;
+        font-size: 32px;
+    }
+    
+    .username {
+        font-size: 20px;
+    }
+    
+    .statsSection h3,
+    .currentProject h3,
+    .actionsSection h3 {
+        font-size: 22px;
+    }
+    
+    .statNumber {
+        font-size: 28px;
+    }
+    
+    .projectImage,
+    .generatedImage {
+        max-width: 200px;
+        max-height: 200px;
+    }
+    
+    .actionBtn {
+        padding: 20px 15px;
+        min-height: 100px;
+    }
+    
+    .actionIcon {
+        font-size: 28px;
+    }
+}

@@ -1,0 +1,178 @@
+/* Questionnaire/Questionnaire.module.css */
+
+.questionnaire {
+    background-image: url('../../images/mainPage/placeholderDark.png');
+    margin-top: 50px;
+    padding: 30px;
+    border-radius: 15px;
+    border: 3px solid #FF018F;
+    background-size: cover;
+    background-position: center;
+}
+
+.sectionTitle {
+    font-size: 48px;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+    font-weight: 800;
+    font-style: italic;
+    line-height: 110%;
+    color: #FBFF00;
+    text-align: center;
+}
+
+.line {
+    border-color: #FBFF00;
+    height: 6px;
+    background-color: #FBFF00;
+    border-radius: 10px;
+    border: none;
+    margin: 25px 0;
+    width: 100%;
+}
+
+.questionnaireForm {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+.question {
+    margin-bottom: 20px;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 20px;
+    border-radius: 10px;
+    border: 2px solid #11012E;
+    transition: all 0.3s ease;
+}
+
+.question:hover {
+    border-color: #FF018F;
+    transform: translateX(5px);
+}
+
+.question label {
+    display: block;
+    margin-bottom: 12px;
+    font-weight: 700;
+    font-style: italic;
+    font-size: 20px;
+    line-height: 150%;
+    color: #11012E;
+    text-transform: uppercase;
+}
+
+.textInput {
+    width: 100%;
+    height: 120px;
+    padding: 15px;
+    border: 2px solid #11012E;
+    border-radius: 8px;
+    font-family: 'JetBrains Mono', Arial, sans-serif;
+    font-size: 16px;
+    resize: vertical;
+    transition: all 0.3s ease;
+    background-color: rgba(251, 255, 0, 0.1);
+}
+
+.textInput:focus {
+    outline: none;
+    border-color: #FF018F;
+    background-color: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 0 10px rgba(255, 1, 143, 0.3);
+}
+
+.textInput::placeholder {
+    color: #666;
+    font-style: italic;
+}
+
+.submitBtn {
+    background-color: #FF018F;
+    color: black;
+    width: 100%;
+    padding: 18px;
+    border: 3px solid black;
+    border-radius: 8px;
+    cursor: pointer;
+    text-transform: uppercase;
+    font-family: 'JetBrains Mono', Arial, sans-serif;
+    font-weight: 700;
+    font-size: 24px;
+    line-height: 100%;
+    transition: all 0.3s ease;
+    margin-top: 20px;
+}
+
+.submitBtn:hover {
+    background-color: #e0017d;
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px rgba(255, 1, 143, 0.3);
+}
+
+.submitBtn:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .questionnaire {
+        padding: 20px;
+        margin-top: 30px;
+    }
+    
+    .sectionTitle {
+        font-size: 36px;
+    }
+    
+    .question {
+        padding: 15px;
+        margin-bottom: 15px;
+    }
+    
+    .question label {
+        font-size: 18px;
+    }
+    
+    .textInput {
+        height: 100px;
+        padding: 12px;
+    }
+    
+    .submitBtn {
+        padding: 15px;
+        font-size: 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .questionnaire {
+        padding: 15px;
+    }
+    
+    .sectionTitle {
+        font-size: 28px;
+    }
+    
+    .question {
+        padding: 12px;
+    }
+    
+    .question label {
+        font-size: 16px;
+    }
+    
+    .textInput {
+        height: 80px;
+        padding: 10px;
+        font-size: 14px;
+    }
+    
+    .submitBtn {
+        padding: 12px;
+        font-size: 18px;
+    }
+}
