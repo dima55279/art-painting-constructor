@@ -26,7 +26,7 @@ const Header = () => {
 
   return (
     <header className={`${styles.headerBlock} ${themeClass}`}>
-      <div className={styles.headerContainer}>
+      <div className={`${styles.headerContainer} ${styles.container}`}>
         <div className={styles.headerContent}>
           <img 
             src={isDark ? logoDark : logoLight}  
@@ -36,7 +36,7 @@ const Header = () => {
           <div className={styles.headerButtons}>
             <Link 
               to="/" 
-              className={`${styles.headerBtn} ${isMainPage ? styles.active : ''}`}
+              className={styles.headerBtn}
             >
               ГЛАВНАЯ
             </Link>
@@ -56,7 +56,6 @@ const Header = () => {
               className={styles.themeBtn}
               aria-label="Сменить тему"
             >
-              {isDark ? '☀️' : '🌙'}
             </button>
           </div>
         </div>

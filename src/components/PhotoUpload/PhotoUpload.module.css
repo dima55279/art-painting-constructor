@@ -2,8 +2,9 @@
     margin-bottom: 30px;
     padding: 20px;
     border-radius: 8px;
-    border: 2px solid #FF018F;
+    border: 2px solid var(--button-primary);
     transition: all 0.3s ease;
+    text-align: center;
 }
 
 .photoUpload.dark {
@@ -14,53 +15,138 @@
     background: rgba(17, 1, 46, 0.1);
 }
 
-.fileInput {
+.uploadTitle {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 15px;
+    text-transform: uppercase;
+    font-family: 'JetBrains Mono', Arial, sans-serif;
+    transition: color 0.3s ease;
+}
+
+.photoUpload.dark .uploadTitle {
+    color: #FBFF00;
+}
+
+.photoUpload.light .uploadTitle {
+    color: #11012E;
+}
+
+/* Скрытый input */
+.hiddenInput {
+    display: none;
+}
+
+/* Кнопка выбора файла */
+.selectBtn {
+    background-color: var(--button-primary);
+    color: black;
     width: 100%;
+    padding: 15px;
+    border: 3px solid black;
+    border-radius: 8px;
+    cursor: pointer;
+    text-transform: uppercase;
+    font-family: 'JetBrains Mono', Arial, sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+    line-height: 100%;
+    transition: all 0.3s ease;
+    margin-bottom: 15px;
+}
+
+.selectBtn:hover:not(:disabled) {
+    background-color: var(--button-hover);
+    transform: translateY(-2px);
+}
+
+.selectBtn:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Информация о выбранном файле */
+.fileInfo {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     padding: 12px;
     margin-bottom: 15px;
     border: 2px dashed var(--input-border);
     border-radius: 8px;
     background-color: var(--input-bg);
-    color: var(--input-text);
-    font-family: 'JetBrains Mono', Arial, sans-serif;
-    font-size: 16px;
-    cursor: pointer;
     transition: all 0.3s ease;
 }
 
-.fileInput.dark {
-    background-color: rgba(251, 255, 0, 0.1);
-    border-color: #FBFF00;
+.fileDetails {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    flex-grow: 1;
+}
+
+.fileName {
+    font-family: 'JetBrains Mono', Arial, sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 4px;
+    transition: color 0.3s ease;
+}
+
+.photoUpload.dark .fileName {
     color: #FBFF00;
 }
 
-.fileInput.light {
-    background-color: rgba(17, 1, 46, 0.1);
-    border-color: #11012E;
+.photoUpload.light .fileName {
     color: #11012E;
 }
 
-.fileInput:hover {
-    border-color: var(--button-primary);
+.fileSize {
+    font-family: 'JetBrains Mono', Arial, sans-serif;
+    font-size: 12px;
+    opacity: 0.7;
+    transition: color 0.3s ease;
 }
 
-.fileInput::file-selector-button {
+.photoUpload.dark .fileSize {
+    color: #FBFF00;
+}
+
+.photoUpload.light .fileSize {
+    color: #11012E;
+}
+
+/* Кнопка очистки выбора */
+.clearBtn {
+    background: none;
+    border: none;
+    color: var(--button-primary);
+    font-size: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    padding: 0 8px;
+    transition: all 0.3s ease;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.clearBtn:hover:not(:disabled) {
     background-color: var(--button-primary);
     color: black;
-    border: 2px solid black;
-    padding: 8px 16px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-family: 'JetBrains Mono', Arial, sans-serif;
-    font-weight: 700;
-    margin-right: 10px;
-    transition: background-color 0.3s;
+    transform: scale(1.1);
 }
 
-.fileInput::file-selector-button:hover {
-    background-color: var(--button-hover);
+.clearBtn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
+/* Кнопка загрузки */
 .uploadBtn {
     background-color: var(--button-primary);
     color: black;
@@ -72,12 +158,13 @@
     text-transform: uppercase;
     font-family: 'JetBrains Mono', Arial, sans-serif;
     font-weight: 700;
-    font-size: 20px;
+    font-size: 18px;
     line-height: 100%;
     transition: all 0.3s ease;
+    margin-bottom: 10px;
 }
 
-.uploadBtn:hover {
+.uploadBtn:hover:not(:disabled) {
     background-color: var(--button-hover);
     transform: translateY(-2px);
 }
@@ -88,59 +175,19 @@
     transform: none;
 }
 
-.photoPreview {
-    margin-top: 20px;
-    text-align: center;
-}
-
-.photoTitle {
-    font-size: 24px;
-    font-weight: 700;
-    margin-bottom: 15px;
-    text-transform: uppercase;
-    font-family: 'JetBrains Mono', Arial, sans-serif;
+.uploadHint {
+    font-size: 14px;
+    font-style: italic;
+    margin: 0;
     transition: color 0.3s ease;
 }
 
-.photoTitleDark {
-    color: #11012E;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
-}
-
-.photoTitleLight {
-    color: #FBFF00;
-    text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.5);
-}
-
-.resultPhotoPlaceholder {
-    height: 300px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 2px solid;
-    border-radius: 8px;
-    margin: 0 auto;
-    overflow: hidden;
-    transition: all 0.3s ease;
-}
-
-.resultPhotoPlaceholder.dark {
-    background-color: rgba(17, 1, 46, 0.8);
-    border-color: #FBFF00;
+.photoUpload.dark .uploadHint {
     color: #FBFF00;
 }
 
-.resultPhotoPlaceholder.light {
-    background-color: rgba(251, 255, 0, 0.8);
-    border-color: #11012E;
+.photoUpload.light .uploadHint {
     color: #11012E;
-}
-
-.uploadedPhoto {
-    max-width: 100%;
-    max-height: 100%;
-    object-fit: contain;
-    border-radius: 6px;
 }
 
 @media (max-width: 768px) {
@@ -149,17 +196,18 @@
         margin-bottom: 20px;
     }
     
+    .selectBtn,
     .uploadBtn {
         padding: 12px;
+        font-size: 16px;
+    }
+    
+    .uploadTitle {
         font-size: 18px;
     }
     
-    .resultPhotoPlaceholder {
-        height: 250px;
-    }
-    
-    .photoTitle {
-        font-size: 20px;
+    .fileName {
+        font-size: 13px;
     }
 }
 
@@ -168,20 +216,25 @@
         padding: 10px;
     }
     
-    .fileInput {
-        padding: 10px;
-    }
-    
+    .selectBtn,
     .uploadBtn {
         padding: 10px;
+        font-size: 14px;
+    }
+    
+    .uploadTitle {
         font-size: 16px;
     }
     
-    .resultPhotoPlaceholder {
-        height: 200px;
+    .uploadHint {
+        font-size: 12px;
     }
     
-    .photoTitle {
-        font-size: 18px;
+    .fileName {
+        font-size: 12px;
+    }
+    
+    .fileSize {
+        font-size: 11px;
     }
 }
