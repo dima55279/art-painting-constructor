@@ -152,13 +152,13 @@
 
 .frameSelection.dark .selectedFrameInfo {
     background: rgba(251, 255, 0, 0.1);
-    color: #FBFF00;
+    color: #11012E;
     border: 1px solid #FBFF00;
 }
 
 .frameSelection.light .selectedFrameInfo {
     background: rgba(17, 1, 46, 0.1);
-    color: #11012E;
+    color: #FBFF00;
     border: 1px solid #11012E;
 }
 
@@ -171,11 +171,11 @@
 }
 
 .frameSelection.dark .selectedFrameTitle {
-    color: #FBFF00;
+    color: #11012E;
 }
 
 .frameSelection.light .selectedFrameTitle {
-    color: #11012E;
+    color: #FBFF00;
 }
 
 @media (max-width: 768px) {

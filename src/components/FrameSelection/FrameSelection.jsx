@@ -36,7 +36,14 @@ const FrameSelection = () => {
           ))}
         </div>
       </div>
-      
+      {selectedFrame && (
+        <div className={`${styles.selectedFrameInfo} ${themeClass}`}>
+          <h4 className={styles.selectedFrameTitle}>Выбрана рамка</h4>
+          <div className={styles.selectedFrameDetails}>
+            <span>{frames.find(f => f.id === selectedFrame)?.name}</span>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

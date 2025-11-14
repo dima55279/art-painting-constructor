@@ -3,9 +3,16 @@ import { createSlice } from '@reduxjs/toolkit'
 const initialState = {
   selectedFrame: null,
   frames: [
-    { id: 1, name: 'Рамка 1', type: 'classic' },
-    { id: 2, name: 'Рамка 2', type: 'modern' },
-    { id: 3, name: 'Рамка 3', type: 'vintage' },
+    { id: 1, name: 'Классика', type: 'classic' },
+    { id: 2, name: 'Модерн', type: 'modern' },
+    { id: 3, name: 'Винтаж', type: 'vintage' },
+    { id: 4, name: 'Минимализм', type: 'minimal' },
+    { id: 5, name: 'Барокко', type: 'baroque' },
+    { id: 6, name: 'Ар-деко', type: 'artdeco' },
+    { id: 7, name: 'Поп-арт', type: 'popart' },
+    { id: 8, name: 'Дерево', type: 'wood' },
+    { id: 9, name: 'Металл', type: 'metal' },
+    { id: 10, name: 'Золото', type: 'gold' },
   ],
 }
 
