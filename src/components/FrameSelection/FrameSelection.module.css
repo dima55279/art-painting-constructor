@@ -5,8 +5,8 @@
     transition: all 0.3s ease;
 }
 
-.frameSelection h3 {
-    font-size: 36px;
+.frameTitle {
+    font-size: 32px;
     font-weight: 800;
     font-style: italic;
     line-height: 110%;
@@ -16,116 +16,166 @@
     transition: color 0.3s ease;
 }
 
-.frameSelection.dark h3 {
+.frameSelection.dark .frameTitle {
     color: #11012E;
 }
 
-.frameSelection.light h3 {
+.frameSelection.light .frameTitle {
     color: #FBFF00;
 }
 
-.frames {
+.framesContainer {
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+
+.framesContainer::-webkit-scrollbar {
+    height: 8px;
+}
+
+.framesContainer::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+}
+
+.framesContainer::-webkit-scrollbar-thumb {
+    background: var(--button-primary);
+    border-radius: 4px;
+}
+
+.framesContainer::-webkit-scrollbar-thumb:hover {
+    background: var(--button-hover);
+}
+
+.framesScroll {
     display: flex;
     gap: 15px;
-    margin-top: 20px;
-    flex-wrap: wrap;
-    justify-content: center;
+    padding: 10px 5px;
+    min-width: min-content;
 }
 
 .frame {
-    flex: 1;
-    min-width: 150px;
-    max-width: 200px;
-    height: 150px;
+    flex: 0 0 auto;
+    width: 150px;
+    height: 180px;
     border: 3px solid;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    border-radius: 12px;
     cursor: pointer;
-    font-family: 'JetBrains Mono', Arial, sans-serif;
-    font-size: 18px;
-    font-weight: 800;
-    font-style: italic;
-    line-height: 110%;
     transition: all 0.3s ease;
-    text-transform: uppercase;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
 }
 
 .frame.dark {
     border-color: #FBFF00;
-    background-color: rgba(17, 1, 46, 0.9);
+    background: linear-gradient(135deg, rgba(17, 1, 46, 0.9), rgba(17, 1, 46, 0.7));
     color: #FBFF00;
 }
 
 .frame.light {
     border-color: #11012E;
-    background-color: rgba(251, 255, 0, 0.9);
+    background: linear-gradient(135deg, rgba(251, 255, 0, 0.9), rgba(251, 255, 0, 0.7));
     color: #11012E;
 }
 
 .frame:hover {
     transform: translateY(-5px);
     border-color: var(--button-primary);
-    box-shadow: 0 5px 15px color-mix(in srgb, var(--button-primary) 30%, transparent);
+    box-shadow: 0 8px 20px color-mix(in srgb, var(--button-primary) 40%, transparent);
 }
 
 .frame.selected {
     border-color: var(--frame-selected);
-    background-color: var(--frame-selected);
-    color: #000;
+    background: var(--frame-selected);
     transform: scale(1.05);
-    box-shadow: 0 8px 20px color-mix(in srgb, var(--frame-selected) 50%, transparent);
+    box-shadow: 0 10px 25px color-mix(in srgb, var(--frame-selected) 50%, transparent);
+}
+
+.frameContent {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: 10px;
 }
 
 .framePreview {
-    margin-top: 20px;
-    text-align: center;
-    padding: 15px;
-    background: rgba(255, 1, 143, 0.1);
+    flex: 1;
+    background: 
+        linear-gradient(45deg, transparent 45%, currentColor 45%, currentColor 55%, transparent 55%),
+        linear-gradient(-45deg, transparent 45%, currentColor 45%, currentColor 55%, transparent 55%),
+        linear-gradient(45deg, currentColor 45%, transparent 45%, transparent 55%, currentColor 55%),
+        linear-gradient(-45deg, currentColor 45%, transparent 45%, transparent 55%, currentColor 55%);
+    background-size: 20px 20px;
+    background-position: 0 0, 0 0, 0 0, 0 0;
+    border: 2px solid currentColor;
     border-radius: 8px;
-    border: 2px dashed #FF018F;
+    margin-bottom: 10px;
+    transition: all 0.3s ease;
 }
 
-.framePreview h4 {
-    font-size: 20px;
+.frame.selected .framePreview {
+    background: 
+        linear-gradient(45deg, transparent 45%, #000 45%, #000 55%, transparent 55%),
+        linear-gradient(-45deg, transparent 45%, #000 45%, #000 55%, transparent 55%),
+        linear-gradient(45deg, #000 45%, transparent 45%, transparent 55%, #000 55%),
+        linear-gradient(-45deg, #000 45%, transparent 45%, transparent 55%, #000 55%);
+    border-color: #000;
+}
+
+.frameName {
+    font-family: 'JetBrains Mono', Arial, sans-serif;
+    font-size: 14px;
     font-weight: 700;
-    margin-bottom: 10px;
+    text-align: center;
+    text-transform: uppercase;
     transition: color 0.3s ease;
 }
 
-.framePreview.dark h4 {
-    color: #FBFF00;
-}
-
-.framePreview.light h4 {
-    color: #11012E;
+.frame.selected .frameName {
+    color: #000;
+    font-weight: 800;
 }
 
 .selectedFrameInfo {
     font-size: 16px;
-    font-weight: 500;
+    font-weight: 600;
+    text-align: center;
+    padding: 10px;
+    border-radius: 8px;
+    margin-top: 10px;
+    transition: all 0.3s ease;
+}
+
+.frameSelection.dark .selectedFrameInfo {
+    background: rgba(251, 255, 0, 0.1);
+    color: #FBFF00;
+    border: 1px solid #FBFF00;
+}
+
+.frameSelection.light .selectedFrameInfo {
+    background: rgba(17, 1, 46, 0.1);
+    color: #11012E;
+    border: 1px solid #11012E;
+}
+
+.selectedFrameTitle {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 10px;
+    text-align: center;
     transition: color 0.3s ease;
 }
 
-.selectedFrameInfo.dark {
+.frameSelection.dark .selectedFrameTitle {
     color: #FBFF00;
 }
 
-.selectedFrameInfo.light {
+.frameSelection.light .selectedFrameTitle {
     color: #11012E;
-}
-
-.themeText {
-    transition: color 0.3s ease;
-}
-
-.dark .themeText {
-    color: #11012E;
-}
-
-.light .themeText {
-    color: #FBFF00;
 }
 
 @media (max-width: 768px) {
@@ -135,37 +185,70 @@
         margin-bottom: 20px;
     }
     
-    .frameSelection h3 {
-        font-size: 28px;
-    }
-    
-    .frames {
-        gap: 10px;
+    .frameTitle {
+        font-size: 20px;
     }
     
     .frame {
-        min-width: 120px;
-        height: 120px;
-        font-size: 16px;
+        width: 130px;
+        height: 160px;
+    }
+    
+    .frameName {
+        font-size: 12px;
+    }
+    
+    .framesScroll {
+        gap: 12px;
     }
 }
 
 @media (max-width: 480px) {
-    .frameSelection h3 {
-        font-size: 24px;
+    .frameSelection {
+        padding: 12px;
+    }
+    
+    .frameTitle {
+        font-size: 18px;
+        margin-bottom: 15px;
     }
     
     .frame {
-        min-width: 100px;
-        height: 100px;
-        font-size: 14px;
+        width: 120px;
+        height: 150px;
     }
     
-    .framePreview h4 {
-        font-size: 18px;
+    .frameName {
+        font-size: 11px;
+    }
+    
+    .framesScroll {
+        gap: 10px;
+    }
+    
+    .selectedFrameTitle {
+        font-size: 16px;
     }
     
     .selectedFrameInfo {
         font-size: 14px;
+    }
+}
+
+@supports not (color: color-mix(in srgb, red, blue)) {
+    .frame:hover {
+        box-shadow: 0 8px 20px rgba(255, 1, 143, 0.4);
+    }
+    
+    .frame.selected {
+        box-shadow: 0 10px 25px rgba(255, 1, 143, 0.5);
+    }
+    
+    body.light-theme .frame:hover {
+        box-shadow: 0 8px 20px rgba(255, 44, 76, 0.4);
+    }
+    
+    body.light-theme .frame.selected {
+        box-shadow: 0 10px 25px rgba(255, 44, 76, 0.5);
     }
 }

@@ -16,20 +16,27 @@ const FrameSelection = () => {
 
   return (
     <div className={`${styles.frameSelection} ${themeClass}`}>
-      <h3 className={styles.themeText}>Выбор рамки</h3>
-      <div className={styles.frames}>
-        {frames.map((frame) => (
-          <div
-            key={frame.id}
-            className={`${styles.frame} ${themeClass} ${
-              selectedFrame === frame.id ? styles.selected : ''
-            }`}
-            onClick={() => handleFrameSelect(frame.id)}
-          >
-            {frame.name}
-          </div>
-        ))}
+      <h3 className={styles.frameTitle}>Выбор рамки</h3>
+      
+      <div className={styles.framesContainer}>
+        <div className={styles.framesScroll}>
+          {frames.map((frame) => (
+            <div
+              key={frame.id}
+              className={`${styles.frame} ${themeClass} ${
+                selectedFrame === frame.id ? styles.selected : ''
+              }`}
+              onClick={() => handleFrameSelect(frame.id)}
+            >
+              <div className={styles.frameContent}>
+                <div className={styles.framePreview}></div>
+                <span className={styles.frameName}>{frame.name}</span>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
+      
     </div>
   )
 }
