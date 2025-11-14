@@ -2,17 +2,7 @@
     margin-top: 30px;
     margin-bottom: 30px;
     padding: 20px;
-    border-radius: 8px;
-    border: 2px solid #FF018F;
     transition: all 0.3s ease;
-}
-
-.frameSelection.dark {
-    background: rgba(255, 255, 255, 0.1);
-}
-
-.frameSelection.light {
-    background: rgba(17, 1, 46, 0.1);
 }
 
 .frameSelection h3 {
@@ -76,16 +66,16 @@
 
 .frame:hover {
     transform: translateY(-5px);
-    border-color: #FF018F;
-    box-shadow: 0 5px 15px rgba(255, 1, 143, 0.3);
+    border-color: var(--button-primary);
+    box-shadow: 0 5px 15px color-mix(in srgb, var(--button-primary) 30%, transparent);
 }
 
 .frame.selected {
-    border-color: #FF018F;
-    background-color: #FF018F;
+    border-color: var(--frame-selected);
+    background-color: var(--frame-selected);
     color: #000;
     transform: scale(1.05);
-    box-shadow: 0 8px 20px rgba(255, 1, 143, 0.5);
+    box-shadow: 0 8px 20px color-mix(in srgb, var(--frame-selected) 50%, transparent);
 }
 
 .framePreview {

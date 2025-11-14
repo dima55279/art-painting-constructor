@@ -2,8 +2,6 @@
     text-align: center;
     margin-top: 60px;
     padding: 40px 20px;
-    border-radius: 15px;
-    border: 3px solid #FF018F;
     transition: all 0.3s ease;
 }
 
@@ -42,8 +40,6 @@
     justify-content: center;
     font-family: 'JetBrains Mono', Arial, sans-serif;
     margin: 30px 0;
-    border-radius: 12px;
-    border: 2px solid;
     position: relative;
     overflow: hidden;
     transition: all 0.3s ease;
@@ -67,8 +63,8 @@
 
 .resultGenerationPlaceholder {
     background-repeat: no-repeat;
-    background-position: center, left bottom, right bottom;
-    background-size: 300px, 150px, 150px;
+    background-position: center, left, right;
+    height: 600px;
 }
 
 .generatedImage {
@@ -88,7 +84,7 @@
 }
 
 .generateBtn {
-    background-color: #FF018F;
+    background-color: var(--button-primary);
     color: black;
     padding: 18px 40px;
     border: 3px solid black;
@@ -104,7 +100,7 @@
 }
 
 .generateBtn:hover:not(:disabled) {
-    background-color: #e0017d;
+    background-color: var(--button-hover);
     transform: translateY(-3px);
     box-shadow: 0 15px 30px rgba(255, 1, 143, 0.4);
 }

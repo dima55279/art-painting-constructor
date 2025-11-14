@@ -74,12 +74,21 @@
   color: #11012E;
 }
 
-.dark .photoPreview .themeText {
-  color: #11012E;
+.photoTitle {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 15px;
+    text-transform: uppercase;
+    font-family: 'JetBrains Mono', Arial, sans-serif;
+    transition: color 0.3s ease;
 }
 
-.light .photoPreview .themeText {
-  color: #FBFF00;
+.photoBlock.dark .photoTitle {
+    color: #11012E;
+}
+
+.photoBlock.light .photoTitle {
+    color: #FBFF00;
 }
 
 .photoBlock {
@@ -170,15 +179,17 @@
 }
 
 .fileInput {
-  width: 100%;
-  padding: 12px;
-  margin-bottom: 15px;
-  border: 2px dashed;
-  border-radius: 8px;
-  font-family: 'JetBrains Mono', Arial, sans-serif;
-  font-size: 16px;
-  cursor: pointer;
-  transition: all 0.3s ease;
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 15px;
+    border: 2px dashed var(--input-border);
+    border-radius: 8px;
+    background-color: var(--input-bg);
+    color: var(--input-text);
+    font-family: 'JetBrains Mono', Arial, sans-serif;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
 }
 
 .fileInput.dark {
@@ -194,45 +205,45 @@
 }
 
 .fileInput:hover {
-  border-color: #FF018F;
+    border-color: var(--button-primary);
 }
 
 .fileInput::file-selector-button {
-  background-color: #FF018F;
-  color: black;
-  border: 2px solid black;
-  padding: 8px 16px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-family: 'JetBrains Mono', Arial, sans-serif;
-  font-weight: 700;
-  margin-right: 10px;
-  transition: background-color 0.3s;
+    background-color: var(--button-primary);
+    color: black;
+    border: 2px solid black;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: 'JetBrains Mono', Arial, sans-serif;
+    font-weight: 700;
+    margin-right: 10px;
+    transition: background-color 0.3s;
 }
 
 .fileInput::file-selector-button:hover {
-  background-color: #e0017d;
+    background-color: var(--button-hover);
 }
 
 .uploadBtn {
-  background-color: #FF018F;
-  color: black;
-  width: 100%;
-  padding: 15px;
-  border: 3px solid black;
-  border-radius: 8px;
-  cursor: pointer;
-  text-transform: uppercase;
-  font-family: 'JetBrains Mono', Arial, sans-serif;
-  font-weight: 700;
-  font-size: 20px;
-  line-height: 100%;
-  transition: all 0.3s ease;
+    background-color: var(--button-primary);
+    color: black;
+    width: 100%;
+    padding: 15px;
+    border: 3px solid black;
+    border-radius: 8px;
+    cursor: pointer;
+    text-transform: uppercase;
+    font-family: 'JetBrains Mono', Arial, sans-serif;
+    font-weight: 700;
+    font-size: 20px;
+    line-height: 100%;
+    transition: all 0.3s ease;
 }
 
 .uploadBtn:hover {
-  background-color: #e0017d;
-  transform: translateY(-2px);
+    background-color: var(--button-hover);
+    transform: translateY(-2px);
 }
 
 .presetCowboy, .presetDragon {

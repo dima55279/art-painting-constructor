@@ -60,24 +60,7 @@
 .question {
     margin-bottom: 20px;
     padding: 20px;
-    border-radius: 10px;
-    border: 2px solid;
     transition: all 0.3s ease;
-}
-
-.question.dark {
-    background: rgba(255, 255, 255, 0.9);
-    border-color: #11012E;
-}
-
-.question.light {
-    background: rgba(17, 1, 46, 0.9);
-    border-color: #FBFF00;
-}
-
-.question:hover {
-    border-color: #FF018F;
-    transform: translateX(5px);
 }
 
 .question label {
@@ -134,7 +117,7 @@
 }
 
 .textInput.light:focus {
-    background-color: rgba(251, 255, 0, 0.9);
+    background-color: rgba(255, 255, 255, 0.062);
 }
 
 .textInput::placeholder {
@@ -150,7 +133,7 @@
 }
 
 .submitBtn {
-    background-color: #FF018F;
+    background-color: var(--button-primary);
     color: black;
     width: 100%;
     padding: 18px;
@@ -167,7 +150,7 @@
 }
 
 .submitBtn:hover {
-    background-color: #e0017d;
+    background-color: var(--button-hover);
     transform: translateY(-3px);
     box-shadow: 0 10px 20px rgba(255, 1, 143, 0.3);
 }

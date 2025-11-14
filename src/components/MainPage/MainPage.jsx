@@ -41,7 +41,7 @@ const MainPage = () => {
           <div className={`${styles.leftColumn} ${themeClass}`}>
             <div className={`${styles.photoBlock} ${themeClass}`}>
               <div className={styles.photoPreview}>
-                <h3 className={styles.themeText}>Ваше фото</h3>
+                <h3 className={styles.photoTitle}>Ваше фото</h3>
                 <div className={`${styles.resultPhotoPlaceholder} ${themeClass}`}>
                   {uploadedPhoto ? (
                     <img 
@@ -50,7 +50,9 @@ const MainPage = () => {
                       className={styles.uploadedPhoto}
                     />
                   ) : (
-                    <span className={styles.themeText}>Здесь будет ваше фото</span>
+                    <span className={styles.placeholderText}>
+                      Загрузите фото, чтобы увидеть его здесь
+                    </span>
                   )}
                 </div>
               </div>

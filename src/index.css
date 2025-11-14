@@ -152,6 +152,33 @@ body.light-theme {
     padding: 0 20px;
 }
 
+:root {
+  --button-primary: #FF018F;
+  --button-hover: #e0017d;
+  --input-border: #FBFF00;
+  --input-bg: rgba(251, 255, 0, 0.1);
+  --input-text: #FBFF00;
+  --frame-selected: #FF018F;
+}
+
+body.dark-theme {
+  --button-primary: #FF018F;
+  --button-hover: #e0017d;
+  --input-border: #FBFF00;
+  --input-bg: rgba(251, 255, 0, 0.1);
+  --input-text: #FBFF00;
+  --frame-selected: #FF018F;
+}
+
+body.light-theme {
+  --button-primary: #FF2C4C;
+  --button-hover: #e01e3a;
+  --input-border: #11012E;
+  --input-bg: rgba(17, 1, 46, 0.1);
+  --input-text: #11012E;
+  --frame-selected: #FF2C4C;
+}
+
 .btn {
     padding: 8px 16px;
     border: none;
@@ -159,7 +186,7 @@ body.light-theme {
     cursor: pointer;
     font-size: 28px;
     line-height: 100%;
-    transition: background-color 0.3s;
+    transition: all 0.3s ease;
     font-family: 'JetBrains Mono', Arial, sans-serif;
     font-weight: 700;
     -webkit-text-stroke: 0;
@@ -167,6 +194,11 @@ body.light-theme {
     text-decoration: none;
     display: inline-block;
     text-align: center;
+    background-color: var(--button-primary);
+}
+
+.btn:hover {
+    background-color: var(--button-hover);
 }
 
 .btn-login,

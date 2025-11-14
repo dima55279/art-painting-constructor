@@ -480,7 +480,7 @@
 }
 
 .createProjectBtn {
-    background-color: #FF018F;
+    background-color: var(--button-primary);
     color: black;
     padding: 15px 30px;
     border: 3px solid black;
@@ -493,7 +493,7 @@
 }
 
 .createProjectBtn:hover {
-    background-color: #e0017d;
+    background-color: var(--button-hover);
     transform: translateY(-3px);
     box-shadow: 0 10px 25px rgba(255, 1, 143, 0.4);
 }
@@ -542,7 +542,7 @@
     flex-direction: column;
     align-items: center;
     padding: 25px 20px;
-    border: 3px solid #FF018F;
+    border: 3px solid var(--button-primary);
     border-radius: 15px;
     color: #FBFF00;
     text-decoration: none;
@@ -555,6 +555,14 @@
     justify-content: center;
 }
 
+.actionBtn:hover {
+    border-color: var(--button-hover);
+    background: linear-gradient(135deg, var(--button-primary), var(--button-hover));
+    color: #000;
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(255, 1, 143, 0.4);
+}
+
 .actionBtn.dark {
     background: linear-gradient(135deg, #11012E, #1a0145);
 }
@@ -562,13 +570,6 @@
 .actionBtn.light {
     background: linear-gradient(135deg, #FBFF00, #e6ea00);
     color: #11012E;
-}
-
-.actionBtn:hover {
-    background: linear-gradient(135deg, #FF018F, #e0017d);
-    color: #000;
-    transform: translateY(-5px);
-    box-shadow: 0 15px 30px rgba(255, 1, 143, 0.4);
 }
 
 .actionBtn.danger {

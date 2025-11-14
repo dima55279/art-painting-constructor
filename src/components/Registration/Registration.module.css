@@ -134,7 +134,7 @@
 }
 
 .btnRegisterSubmit {
-    background-color: #FF018F;
+    background-color: var(--button-primary);
     color: black;
     width: 100%;
     padding: 18px;
@@ -152,10 +152,11 @@
 }
 
 .btnRegisterSubmit:hover:not(:disabled) {
-    background-color: #e0017d;
+    background-color: var(--button-hover);
     transform: translateY(-3px);
     box-shadow: 0 10px 25px rgba(255, 1, 143, 0.4);
 }
+
 
 .btnRegisterSubmit:disabled {
     background-color: #cccccc;
