@@ -12,21 +12,26 @@
 }
 
 .mainContent {
+  padding: 20px 0;
+  margin-top: 30px;
+}
+
+.profileLayout {
   display: flex;
   gap: 30px;
-  margin-top: 30px;
-  padding: 20px 0;
+  align-items: flex-start;
 }
 
 .profileBlock {
   background-position: center;
   background-size: cover;
   background-repeat: repeat;
-  padding: 50px;
-  margin: 80px;
+  padding: 40px;
   border-radius: 30px;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
   transition: all 0.3s ease;
+  flex: 2;
+  min-width: 400px;
 }
 
 .profileBlock.dark {
@@ -40,9 +45,9 @@
 }
 
 .profileTitle {
-  font-size: 42px;
+  font-size: 32px;
   margin-bottom: 5px;
-  padding-left: 50px;
+  margin-left: 50px;
   text-transform: uppercase;
   line-height: 110%;
   font-weight: 800;
@@ -76,10 +81,11 @@
 
 .profileContent {
   display: flex;
-  justify-content: space-between;
-  padding-top: 20px;
-  padding-bottom: 50px;
+  flex-direction: row;
   align-items: center;
+  padding-top: 20px;
+  padding-bottom: 20px;
+  gap: 30px;
 }
 
 .profileImage {
@@ -92,11 +98,12 @@
   display: flex;
   flex-direction: column;
   font-style: italic;
-  margin-left: 50px;
-  font-size: 24px;
+  font-size: 20px;
   font-weight: 500;
-  gap: 20px;
+  gap: 15px;
   transition: color 0.3s ease;
+  text-align: center;
+  width: 100%;
 }
 
 .profileInfo.dark {
@@ -110,16 +117,32 @@
 .profileInfo p {
   margin: 0;
   padding: 8px 0;
+  border-bottom: 1px solid;
+  transition: border-color 0.3s ease;
+}
+
+.profileInfo.dark p {
+  border-color: rgba(17, 1, 46, 0.3);
+}
+
+.profileInfo.light p {
+  border-color: rgba(17, 1, 46, 0.3);
+}
+
+.profileInfo p:last-child {
+  border-bottom: none;
 }
 
 .purchaseBlock {
   display: flex;
   flex-direction: column;
-  padding: 50px;
-  margin-top: 80px;
+  padding: 40px;
   border-radius: 30px;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
   transition: all 0.3s ease;
+  flex: 3;
+  min-width: 500px;
+  min-height: 600px;
 }
 
 .purchaseBlock.dark {
@@ -135,52 +158,86 @@
 }
 
 .subscribeBlock {
-  padding-top: 10px;
-  padding-bottom: 10px;
-  margin-bottom: 30px;
+  margin-bottom: 20px;
+  transition: all 0.3s ease;
 }
 
 .subscribeTitle {
-  font-size: 36px;
+  font-size: 28px;
   font-weight: 800;
-  font-style: italic;
   text-transform: uppercase;
-  margin-bottom: 15px;
+  margin-bottom: 10px;
   transition: color 0.3s ease;
 }
 
 .subscribeInfo {
-  font-size: 24px;
+  font-size: 18px;
   font-weight: 500;
   font-style: italic;
   transition: color 0.3s ease;
 }
 
+.orderHistorySection {
+  margin-top: 20px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
 .paintingTitle {
-  font-size: 36px;
+  font-size: 28px;
   font-weight: 800;
-  font-style: italic;
   text-transform: uppercase;
   margin-bottom: 20px;
   transition: color 0.3s ease;
 }
 
-.paintingBlock {
+.paintingsContainer {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: 15px;
+  margin-bottom: 20px;
+  flex: 1;
+}
+
+.paintingsContainer::-webkit-scrollbar {
+  height: 8px;
+}
+
+.paintingsContainer::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+
+.paintingsContainer::-webkit-scrollbar-thumb {
+  background: var(--button-primary);
+  border-radius: 4px;
+}
+
+.paintingsContainer::-webkit-scrollbar-thumb:hover {
+  background: var(--button-hover);
+}
+
+.paintingsScroll {
   display: flex;
-  justify-content: space-between;
-  flex-direction: row;
-  padding-top: 10px;
-  padding-bottom: 10px;
   gap: 20px;
+  padding: 10px 5px;
+  min-width: min-content;
+  height: 100%;
 }
 
 .painting {
-  margin: 5px;
+  flex: 0 0 auto;
+  width: 180px;
   text-align: center;
-  flex: 1;
   transition: all 0.3s ease;
-  padding: 20px;
+  padding: 15px;
   border-radius: 15px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
 .painting.dark {
@@ -193,9 +250,16 @@
   border: 2px solid #11012E;
 }
 
+.painting:hover {
+  transform: translateY(-5px);
+  border-color: var(--button-primary);
+  box-shadow: 0 8px 20px color-mix(in srgb, var(--button-primary) 40%, transparent);
+}
+
 .paintingImage {
-  max-width: 100%;
-  height: auto;
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
   border-radius: 8px;
   margin-bottom: 15px;
   border: 2px solid;
@@ -211,11 +275,42 @@
 }
 
 .paintingInfo {
-  font-size: 20px;
+  font-size: 16px;
   font-style: italic;
-  font-weight: 500;
+  font-weight: 600;
   margin: 0;
   transition: color 0.3s ease;
+  text-transform: uppercase;
+}
+
+.orderStats {
+  text-align: center;
+  padding: 15px;
+  border-radius: 10px;
+  margin-top: auto;
+  transition: all 0.3s ease;
+}
+
+.purchaseBlock.dark .orderStats {
+  background: rgba(251, 255, 0, 0.1);
+  border: 1px solid #FBFF00;
+}
+
+.purchaseBlock.light .orderStats {
+  background: rgba(17, 1, 46, 0.1);
+  border: 1px solid #11012E;
+}
+
+.orderStats p {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0;
+  transition: color 0.3s ease;
+}
+
+.orderStats strong {
+  color: var(--button-primary);
+  font-weight: 800;
 }
 
 .themeText {
@@ -230,70 +325,44 @@
   color: #11012E;
 }
 
+@media (max-width: 1024px) {
+  .profileLayout {
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .profileBlock,
+  .purchaseBlock {
+    min-width: auto;
+    width: 100%;
+  }
+  
+  .purchaseBlock {
+    min-height: 500px;
+  }
+}
+
 @media (max-width: 768px) {
   .container {
     padding: 0 15px;
   }
   
-  .profileBlock {
-    padding: 30px;
-    margin: 40px 20px;
+  .profileBlock,
+  .purchaseBlock {
+    padding: 30px 20px;
   }
   
   .profileTitle {
-    padding-left: 0;
-    text-align: center;
-    font-size: 32px;
-  }
-  
-  .profileContent {
-    flex-direction: column;
-    text-align: center;
-    gap: 30px;
-  }
-  
-  .profileInfo {
-    margin-left: 0;
-    gap: 15px;
-    font-size: 20px;
-  }
-  
-  .purchaseBlock {
-    padding: 30px 20px;
-    margin-top: 40px;
-  }
-  
-  .paintingBlock {
-    flex-direction: column;
-    gap: 30px;
-  }
-  
-  .painting {
-    margin: 10px 0;
-  }
-  
-  .subscribeTitle,
-  .paintingTitle {
     font-size: 28px;
   }
   
-  .subscribeInfo {
-    font-size: 20px;
-  }
-}
-
-@media (max-width: 480px) {
-  .profileBlock {
-    padding: 20px;
-    margin: 20px 10px;
-  }
-  
-  .profileTitle {
-    font-size: 24px;
+  .profileContent {
+    gap: 20px;
   }
   
   .profileInfo {
     font-size: 18px;
+    gap: 12px;
   }
   
   .profileImage {
@@ -301,17 +370,78 @@
     max-height: 150px;
   }
   
+  .painting {
+    width: 160px;
+    padding: 12px;
+  }
+  
+  .paintingImage {
+    height: 130px;
+  }
+  
   .subscribeTitle,
   .paintingTitle {
-    font-size: 22px;
+    font-size: 24px;
+  }
+  
+  .subscribeInfo {
+    font-size: 16px;
+  }
+  
+  .paintingsScroll {
+    gap: 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .profileBlock,
+  .purchaseBlock {
+    padding: 20px 15px;
+  }
+  
+  .profileTitle {
+    font-size: 24px;
+  }
+  
+  .profileInfo {
+    font-size: 16px;
+  }
+  
+  .profileImage {
+    max-width: 120px;
+    max-height: 120px;
+  }
+  
+  .subscribeTitle,
+  .paintingTitle {
+    font-size: 20px;
   }
   
   .subscribeInfo,
   .paintingInfo {
-    font-size: 16px;
+    font-size: 14px;
   }
   
   .painting {
-    padding: 15px;
+    width: 140px;
+    padding: 10px;
+  }
+  
+  .paintingImage {
+    height: 120px;
+  }
+  
+  .paintingsScroll {
+    gap: 12px;
+  }
+}
+
+@supports not (color: color-mix(in srgb, red, blue)) {
+  .painting:hover {
+    box-shadow: 0 8px 20px rgba(255, 1, 143, 0.4);
+  }
+  
+  .purchaseBlock.light .painting:hover {
+    box-shadow: 0 8px 20px rgba(255, 44, 76, 0.4);
   }
 }
