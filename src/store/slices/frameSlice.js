@@ -3,16 +3,51 @@ import { createSlice } from '@reduxjs/toolkit'
 const initialState = {
   selectedFrame: null,
   frames: [
-    { id: 1, name: 'Классика', type: 'classic' },
-    { id: 2, name: 'Модерн', type: 'modern' },
-    { id: 3, name: 'Винтаж', type: 'vintage' },
-    { id: 4, name: 'Минимализм', type: 'minimal' },
-    { id: 5, name: 'Барокко', type: 'baroque' },
-    { id: 6, name: 'Ар-деко', type: 'artdeco' },
-    { id: 7, name: 'Поп-арт', type: 'popart' },
-    { id: 8, name: 'Дерево', type: 'wood' },
-    { id: 9, name: 'Металл', type: 'metal' },
-    { id: 10, name: 'Золото', type: 'gold' },
+    { 
+      id: 1, 
+      name: 'Вестерн', 
+      type: 'cowboy'
+    },
+    { 
+      id: 2, 
+      name: 'Хэллоуин', 
+      type: 'pumpkin'
+    },
+    { 
+      id: 3, 
+      name: 'Цветы', 
+      type: 'flowers'
+    },
+    { 
+      id: 4, 
+      name: 'Барокко', 
+      type: 'baroque'
+    },
+    { 
+      id: 5, 
+      name: 'Ар-деко', 
+      type: 'artdeco'
+    },
+    { 
+      id: 6, 
+      name: 'Поп-арт', 
+      type: 'popart'
+    },
+    { 
+      id: 7, 
+      name: 'Дерево', 
+      type: 'wood'
+    },
+    { 
+      id: 8, 
+      name: 'Металл', 
+      type: 'metal'
+    },
+    { 
+      id: 9, 
+      name: 'Золото', 
+      type: 'gold'
+    },
   ],
 }
 

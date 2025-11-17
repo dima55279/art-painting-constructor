@@ -104,26 +104,27 @@
 
 .framePreview {
     flex: 1;
-    background: 
-        linear-gradient(45deg, transparent 45%, currentColor 45%, currentColor 55%, transparent 55%),
-        linear-gradient(-45deg, transparent 45%, currentColor 45%, currentColor 55%, transparent 55%),
-        linear-gradient(45deg, currentColor 45%, transparent 45%, transparent 55%, currentColor 55%),
-        linear-gradient(-45deg, currentColor 45%, transparent 45%, transparent 55%, currentColor 55%);
-    background-size: 20px 20px;
-    background-position: 0 0, 0 0, 0 0, 0 0;
-    border: 2px solid currentColor;
     border-radius: 8px;
     margin-bottom: 10px;
     transition: all 0.3s ease;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid currentColor;
+}
+
+.framePreviewImage {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 6px;
 }
 
 .frame.selected .framePreview {
-    background: 
-        linear-gradient(45deg, transparent 45%, #000 45%, #000 55%, transparent 55%),
-        linear-gradient(-45deg, transparent 45%, #000 45%, #000 55%, transparent 55%),
-        linear-gradient(45deg, #000 45%, transparent 45%, transparent 55%, #000 55%),
-        linear-gradient(-45deg, #000 45%, transparent 45%, transparent 55%, #000 55%);
     border-color: #000;
+    background: rgba(0, 0, 0, 0.2);
 }
 
 .frameName {
@@ -141,32 +142,26 @@
 }
 
 .selectedFrameInfo {
-    font-size: 16px;
-    font-weight: 600;
-    text-align: center;
-    padding: 10px;
-    border-radius: 8px;
-    margin-top: 10px;
+    padding: 25px;
+    border-radius: 15px;
+    margin-top: 20px;
     transition: all 0.3s ease;
 }
 
 .frameSelection.dark .selectedFrameInfo {
-    background: rgba(251, 255, 0, 0.1);
     color: #11012E;
-    border: 1px solid #FBFF00;
 }
 
 .frameSelection.light .selectedFrameInfo {
-    background: rgba(17, 1, 46, 0.1);
     color: #FBFF00;
-    border: 1px solid #11012E;
 }
 
 .selectedFrameTitle {
-    font-size: 18px;
-    font-weight: 700;
-    margin-bottom: 10px;
+    font-size: 24px;
+    font-weight: 800;
+    margin-bottom: 20px;
     text-align: center;
+    text-transform: uppercase;
     transition: color 0.3s ease;
 }
 
@@ -178,6 +173,128 @@
     color: #FBFF00;
 }
 
+.selectedFrameDetails {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.frameDetailRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: border-color 0.3s ease;
+}
+
+.frameSelection.dark .frameDetailRow {
+    border-color: rgba(17, 1, 46, 0.3);
+}
+
+.frameSelection.light .frameDetailRow {
+    border-color: rgba(251, 255, 0, 0.3);
+}
+
+.detailLabel {
+    font-weight: 700;
+    font-size: 16px;
+    text-transform: uppercase;
+    transition: color 0.3s ease;
+}
+
+.detailValue {
+    font-weight: 600;
+    font-size: 16px;
+    transition: color 0.3s ease;
+}
+
+.modelViewerContainer {
+    margin-top: 15px;
+    border-radius: 12px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    height: 400px;
+}
+
+.modelCanvas {
+    width: 100%;
+    height: 400px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.frameSelection.dark .modelCanvas {
+    background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+}
+
+.frameSelection.light .modelCanvas {
+    background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+}
+
+.viewerControls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: center;
+    margin-top: 15px;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.frameSelection.dark .viewerControls {
+    background: rgba(17, 1, 46, 0.2);
+}
+
+.frameSelection.light .viewerControls {
+    background: rgba(251, 255, 0, 0.1);
+}
+
+.selectedFrameInfo {
+    animation: fadeInUp 0.5s ease-out;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.modelLoading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 400px;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.loadingSpinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid rgba(255, 255, 255, 0.3);
+    border-top: 4px solid var(--button-primary);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.loadingText {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--input-text);
+}
+
 @media (max-width: 768px) {
     .frameSelection {
         padding: 15px;
@@ -186,7 +303,7 @@
     }
     
     .frameTitle {
-        font-size: 20px;
+        font-size: 24px;
     }
     
     .frame {
@@ -201,6 +318,33 @@
     .framesScroll {
         gap: 12px;
     }
+    
+    .selectedFrameInfo {
+        padding: 20px;
+    }
+    
+    .selectedFrameTitle {
+        font-size: 20px;
+        margin-bottom: 15px;
+    }
+    
+    .modelCanvas {
+        height: 300px;
+    }
+    
+    .frameDetailRow {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+        padding: 8px 0;
+    }
+    
+    .viewerControls {
+        flex-direction: column;
+        gap: 8px;
+        padding: 12px;
+    }
+    
 }
 
 @media (max-width: 480px) {
@@ -209,13 +353,13 @@
     }
     
     .frameTitle {
-        font-size: 18px;
+        font-size: 20px;
         margin-bottom: 15px;
     }
     
     .frame {
-        width: 120px;
-        height: 150px;
+        width: 110px;
+        height: 140px;
     }
     
     .frameName {
@@ -227,10 +371,19 @@
     }
     
     .selectedFrameTitle {
-        font-size: 16px;
+        font-size: 18px;
     }
     
     .selectedFrameInfo {
+        padding: 15px;
+    }
+    
+    .modelCanvas {
+        height: 250px;
+    }
+    
+    .detailLabel,
+    .detailValue {
         font-size: 14px;
     }
 }
@@ -251,4 +404,16 @@
     body.light-theme .frame.selected {
         box-shadow: 0 10px 25px rgba(255, 44, 76, 0.5);
     }
+}
+
+.modelCanvas::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at center, transparent 0%, rgba(0, 0, 0, 0.1) 100%);
+    pointer-events: none;
+    border-radius: 12px;
 }

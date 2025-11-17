@@ -3,6 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@react-three/drei": "^10.7.7",
+    "@react-three/fiber": "^9.4.0",
     "@reduxjs/toolkit": "^2.10.1",
     "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.9.1",
@@ -13,6 +15,8 @@
     "react-redux": "^9.2.0",
     "react-router-dom": "^7.9.5",
     "react-scripts": "5.0.1",
+    "three": "^0.181.1",
+    "three-stdlib": "^2.36.1",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
