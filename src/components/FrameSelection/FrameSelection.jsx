@@ -2,7 +2,7 @@ import React, { useRef, Suspense, useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { selectFrame } from '../../store/slices/frameSlice'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
-import { OrbitControls, Center } from '@react-three/drei'
+import { OrbitControls, Center, SoftShadows } from '@react-three/drei'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 import * as THREE from 'three'
 import styles from './FrameSelection.module.css'
@@ -28,12 +28,11 @@ import metalPreview from '../../images/frames/cowboy.png'
 import goldPreview from '../../images/frames/cowboy.png'
 import defaultPreview from '../../images/frames/cowboy.png'
 
-const CameraController = ({ model }) => {
+const CameraController = ({ model, cameraSettings }) => {
   const { camera, controls } = useThree()
   
   React.useEffect(() => {
-    if (model && controls) {
-
+    if (model && controls && cameraSettings) {
       const box = new THREE.Box3().setFromObject(model)
       const center = box.getCenter(new THREE.Vector3())
       const size = box.getSize(new THREE.Vector3())
@@ -44,16 +43,72 @@ const CameraController = ({ model }) => {
 
       cameraDistance *= 1.5
       
-      camera.position.set(0, 0, cameraDistance)
+      const initialZ = cameraSettings?.initialPosition?.[2] || cameraDistance
+      camera.position.set(0, 0, initialZ)
       controls.target.set(center.x, center.y, center.z)
       controls.update()
     }
-  }, [model, camera, controls])
+  }, [model, camera, controls, cameraSettings])
   
   return null
 }
 
-const FrameModel = ({ modelUrl }) => {
+const Lighting = () => {
+  return (
+    <>
+      <directionalLight
+        position={[10, 10, 5]}
+        intensity={1.2}
+        castShadow
+        shadow-mapSize-width={2048}
+        shadow-mapSize-height={2048}
+        shadow-camera-far={50}
+        shadow-camera-left={-20}
+        shadow-camera-right={20}
+        shadow-camera-top={20}
+        shadow-camera-bottom={-20}
+      />
+
+      <directionalLight
+        position={[0, 0, 10]}
+        intensity={0.8}
+        color="#ffffff"
+      />
+      
+      <directionalLight
+        position={[-10, 5, 0]}
+        intensity={0.6}
+        color="#ffffee"
+      />
+      
+      <directionalLight
+        position={[0, -5, -10]}
+        intensity={0.4}
+        color="#aaaaff"
+      />
+      
+      <ambientLight intensity={0.3} color="#ffffff" />
+      
+      <pointLight
+        position={[5, 5, 5]}
+        intensity={0.5}
+        color="#fff8e1"
+        distance={30}
+        decay={2}
+      />
+      
+      <pointLight
+        position={[-5, -5, 5]}
+        intensity={0.3}
+        color="#e3f2fd"
+        distance={25}
+        decay={2}
+      />
+    </>
+  )
+}
+
+const FrameModel = ({ modelUrl, cameraSettings }) => {
   const [model, setModel] = useState(null)
   const groupRef = useRef()
   const [error, setError] = useState(null)
@@ -73,10 +128,11 @@ const FrameModel = ({ modelUrl }) => {
         gltf.scene.traverse((child) => {
           if (child.isMesh) {
             child.material = new THREE.MeshStandardMaterial({
-              color: child.material?.color || '#cccccc',
-              roughness: 0.7,
-              metalness: 0.3,
-              side: THREE.DoubleSide
+              color: child.material?.color || '#ffffff',
+              roughness: 0.4,
+              metalness: 0.6, 
+              side: THREE.DoubleSide,
+              envMapIntensity: 1
             })
             child.castShadow = true
             child.receiveShadow = true
@@ -130,7 +186,7 @@ const FrameModel = ({ modelUrl }) => {
           position={[0, 0, 0]}
         />
       </Center>
-      <CameraController model={model} />
+      <CameraController model={model} cameraSettings={cameraSettings} />
     </group>
   )
 }
@@ -148,13 +204,18 @@ const ModelFallback = () => {
     <Center>
       <mesh ref={meshRef}>
         <boxGeometry args={[1, 1, 1]} />
-        <meshStandardMaterial color="#666666" wireframe />
+        <meshStandardMaterial 
+          color="#666666" 
+          roughness={0.3}
+          metalness={0.7}
+          wireframe={false}
+        />
       </mesh>
     </Center>
   )
 }
 
-const SimpleFrame = ({ type }) => {
+const SimpleFrame = ({ type, cameraSettings }) => {
   const meshRef = useRef()
   
   useFrame(() => {
@@ -165,7 +226,7 @@ const SimpleFrame = ({ type }) => {
 
   let geometry
   let scale = 0.8
-  let color = "#cccccc"
+  let color = "#ffffff"
 
   switch(type) {
     case 'cowboy':
@@ -174,23 +235,23 @@ const SimpleFrame = ({ type }) => {
       break
     case 'pumpkin':
       geometry = <ringGeometry args={[1.2, 1.5, 32]} />
-      color = "#228B22"
+      color = "#FF7518"
       break
     case 'flowers':
       geometry = <torusGeometry args={[1, 0.1, 16, 100]} />
-      color = "#DAA520"
+      color = "#FF69B4"
       break
     case 'christmas':
       geometry = <circleGeometry args={[1.3, 32]} />
-      color = "#FFFFFF"
+      color = "#2E8B57"
       break
     case 'sea':
       geometry = <ringGeometry args={[1, 1.4, 32]} />
-      color = "#FFD700"
+      color = "#1E90FF"
       break
     case 'popart':
       geometry = <cylinderGeometry args={[1, 1.3, 0.15, 8]} />
-      color = "#FF69B4"
+      color = "#FFFF00"
       break
     case 'wood':
       geometry = <boxGeometry args={[1.5, 1.5, 0.2]} />
@@ -198,7 +259,7 @@ const SimpleFrame = ({ type }) => {
       break
     case 'metal':
       geometry = <ringGeometry args={[1.1, 1.3, 32]} />
-      color = "#708090"
+      color = "#C0C0C0"
       break
     case 'gold':
       geometry = <ringGeometry args={[1, 1.4, 32]} />
@@ -210,12 +271,12 @@ const SimpleFrame = ({ type }) => {
 
   return (
     <Center>
-      <mesh ref={meshRef} scale={scale}>
+      <mesh ref={meshRef} scale={scale} castShadow receiveShadow>
         {geometry}
         <meshStandardMaterial 
           color={color}
-          roughness={0.7}
-          metalness={0.3}
+          roughness={0.3}
+          metalness={0.7}
           wireframe={false}
         />
       </mesh>
@@ -233,6 +294,11 @@ const FrameSelection = () => {
     previewImage: getFramePreview(frame.id),
     modelUrl: getFrameModelUrl(frame.id),
     type: getFrameType(frame.id),
+    cameraSettings: frame.cameraSettings || {
+      minDistance: 50,
+      maxDistance: 100,
+      initialPosition: [0, 0, 0]
+    }
   }))
 
   const handleFrameSelect = (frameId) => {
@@ -330,30 +396,37 @@ const FrameSelection = () => {
             
             <div className={styles.modelViewerContainer}>
               <Canvas
-                camera={{ position: [0, 0, 0], fov: 50 }}
+                camera={{ 
+                  position: selectedFrameData.cameraSettings?.initialPosition || [0, 0, 0], 
+                  fov: 50 
+                }}
                 className={styles.modelCanvas}
-                shadows
+                shadows={{
+                  enabled: true,
+                  type: THREE.PCFSoftShadowMap
+                }}
+                gl={{
+                  antialias: true,
+                  alpha: true
+                }}
               >
-                <ambientLight intensity={0.6} />
-                <spotLight 
-                  position={[5, 5, 5]} 
-                  angle={0.3} 
-                  penumbra={1} 
-                  intensity={1} 
-                  castShadow
-                />
-                <pointLight position={[-5, -5, -5]} intensity={0.3} />
+                <SoftShadows size={25} samples={16} focus={0.5} />
+                
+                <Lighting />
                 
                 <Suspense fallback={<ModelFallback />}>
-                  <FrameModel modelUrl={selectedFrameData.modelUrl} />
+                  <FrameModel 
+                    modelUrl={selectedFrameData.modelUrl} 
+                    cameraSettings={selectedFrameData.cameraSettings}
+                  />
                 </Suspense>
                 
                 <OrbitControls 
                   enableZoom={true}
                   enablePan={false}
                   enableRotate={true}
-                  maxDistance={20}
-                  minDistance={10}
+                  maxDistance={selectedFrameData.cameraSettings?.maxDistance || 100}
+                  minDistance={selectedFrameData.cameraSettings?.minDistance || 50}
                   autoRotate={false}
                 />
               </Canvas>
