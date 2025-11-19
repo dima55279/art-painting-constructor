@@ -20,13 +20,13 @@ const initialState = {
     },
     { 
       id: 4, 
-      name: 'Барокко', 
-      type: 'baroque'
+      name: 'Новогодняя', 
+      type: 'christmas'
     },
     { 
       id: 5, 
-      name: 'Ар-деко', 
-      type: 'artdeco'
+      name: 'Море', 
+      type: 'sea'
     },
     { 
       id: 6, 

@@ -10,8 +10,8 @@ import styles from './FrameSelection.module.css'
 import cowboyModel from '../../frames/cowboy.glb'
 import pumpkinModel from '../../frames/pumpkin.glb'
 import flowersModel from '../../frames/flowers.glb'
-import baroqueModel from '../../frames/cowboy.glb'
-import artdecoModel from '../../frames/cowboy.glb'
+import christmasModel from '../../frames/christmas.glb'
+import seaModel from '../../frames/sea.glb'
 import popartModel from '../../frames/cowboy.glb'
 import woodModel from '../../frames/cowboy.glb'
 import metalModel from '../../frames/cowboy.glb'
@@ -19,9 +19,9 @@ import goldModel from '../../frames/cowboy.glb'
 
 import cowboyPreview from '../../images/frames/cowboy.png'
 import pumpkinPreview from '../../images/frames/pumpkin.png'
-import flowersPreview from '../../images/frames/cowboy.png'
-import baroquePreview from '../../images/frames/cowboy.png'
-import artdecoPreview from '../../images/frames/cowboy.png'
+import flowersPreview from '../../images/frames/flowers.png'
+import christmasPreview from '../../images/frames/christmas.png'
+import seaPreview from '../../images/frames/sea.png'
 import popartPreview from '../../images/frames/cowboy.png'
 import woodPreview from '../../images/frames/cowboy.png'
 import metalPreview from '../../images/frames/cowboy.png'
@@ -180,17 +180,13 @@ const SimpleFrame = ({ type }) => {
       geometry = <torusGeometry args={[1, 0.1, 16, 100]} />
       color = "#DAA520"
       break
-    case 'minimal':
+    case 'christmas':
       geometry = <circleGeometry args={[1.3, 32]} />
       color = "#FFFFFF"
       break
-    case 'baroque':
+    case 'sea':
       geometry = <ringGeometry args={[1, 1.4, 32]} />
       color = "#FFD700"
-      break
-    case 'artdeco':
-      geometry = <boxGeometry args={[1.4, 1.4, 0.1]} />
-      color = "#C0C0C0"
       break
     case 'popart':
       geometry = <cylinderGeometry args={[1, 1.3, 0.15, 8]} />
@@ -251,8 +247,8 @@ const FrameSelection = () => {
       1: cowboyPreview,
       2: pumpkinPreview,
       3: flowersPreview,
-      4: baroquePreview,
-      5: artdecoPreview,
+      4: christmasPreview,
+      5: seaPreview,
       6: popartPreview,
       7: woodPreview,
       8: metalPreview,
@@ -266,8 +262,8 @@ const FrameSelection = () => {
       1: cowboyModel,
       2: pumpkinModel,
       3: flowersModel,
-      4: baroqueModel,
-      5: artdecoModel,
+      4: christmasModel,
+      5: seaModel,
       6: popartModel,
       7: woodModel,
       8: metalModel,
@@ -281,8 +277,8 @@ const FrameSelection = () => {
       1: 'cowboy',
       2: 'pumpkin', 
       3: 'flowers',
-      4: 'baroque',
-      5: 'artdeco',
+      4: 'christmas',
+      5: 'sea',
       6: 'popart',
       7: 'wood',
       8: 'metal',
