@@ -100,7 +100,6 @@ body.light-theme .headerBtn.active {
     transform: translateY(-2px);
 }
 
-/* Адаптивность */
 @media (max-width: 768px) {
     .headerBlock {
         padding: 50px 0;

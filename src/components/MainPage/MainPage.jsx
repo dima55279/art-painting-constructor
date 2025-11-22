@@ -1,13 +1,15 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
+import { useGenerateImageMutation } from '../../services/api'
 import { setGeneratedImage, setLoading } from '../../store/slices/photoSlice'
-import Header from '../../components/Header/Header'
-import Footer from '../../components/Footer/Footer'
-import PhotoUpload from '../../components/PhotoUpload/PhotoUpload'
-import FrameSelection from '../../components/FrameSelection/FrameSelection'
-import Questionnaire from '../../components/Questionnaire/Questionnaire'
-import GenerationSection from '../../components/GenerationSection/GenerationSection'
+import Header from '../Header/Header'
+import Footer from '../Footer/Footer'
+import PhotoUpload from '../PhotoUpload/PhotoUpload'
+import FrameSelection from '../FrameSelection/FrameSelection'
+import Questionnaire from '../Questionnaire/Questionnaire'
+import GenerationSection from '../GenerationSection/GenerationSection'
 import styles from './MainPage.module.css'
+
 import cowboyDark from '../../images/mainPage/cowboyAndFairyDark.png'
 import cowboyLight from '../../images/mainPage/cowboyAndFairyLight.png'
 import dragonDark from '../../images/mainPage/dragonAndPlanetDark.png'
@@ -16,19 +18,43 @@ import dragonLight from '../../images/mainPage/dragonAndPlanetLight.png'
 const MainPage = () => {
   const dispatch = useDispatch()
   const { isDark } = useSelector((state) => state.theme)
-  const { uploadedPhoto } = useSelector((state) => state.photo)
+  const { uploadedPhoto } = useSelector((state) => state.photo) // Получаем загруженное фото из Redux
+  const { selectedFrame } = useSelector((state) => state.frame)
+  const { answers } = useSelector((state) => state.questionnaire)
+  
+  const [generateImage, { isLoading: isGenerating }] = useGenerateImageMutation()
+  const [generationId, setGenerationId] = useState(null)
 
   const handleGenerate = async () => {
+    if (!uploadedPhoto) {
+      alert('Пожалуйста, сначала загрузите фото')
+      return
+    }
+
+    if (!selectedFrame) {
+      alert('Пожалуйста, выберите рамку')
+      return
+    }
+
     dispatch(setLoading(true))
-    // Имитация генерации изображения
-    setTimeout(() => {
-      dispatch(setGeneratedImage(
-        isDark 
-          ? '../../images/mainPage/generatedDark.png' 
-          : '../../images/mainPage/generatedLight.png'
-      ))
+
+    try {
+      const generationData = {
+        photo_id: uploadedPhoto.id, // Используем ID загруженного фото
+        frame_id: selectedFrame,
+        questionnaire: answers,
+        theme: isDark ? 'dark' : 'light'
+      }
+
+      const result = await generateImage(generationData).unwrap()
+      setGenerationId(result.generationId)
+      dispatch(setGeneratedImage(result.generatedImageUrl))
+    } catch (error) {
+      alert(error.data?.message || 'Ошибка при генерации изображения')
+      dispatch(setGeneratedImage(null))
+    } finally {
       dispatch(setLoading(false))
-    }, 2000)
+    }
   }
 
   const themeClass = isDark ? styles.dark : styles.light
@@ -44,20 +70,34 @@ const MainPage = () => {
                 <h3 className={styles.photoTitle}>Ваше фото</h3>
                 <div className={`${styles.resultPhotoPlaceholder} ${themeClass}`}>
                   {uploadedPhoto ? (
-                    <img 
-                      src={uploadedPhoto} 
-                      alt="Загруженное фото" 
-                      className={styles.uploadedPhoto}
-                    />
+                    <div className={styles.photoContainer}>
+                      <img 
+                        src={uploadedPhoto.previewUrl || uploadedPhoto.generated_image_url || '/placeholder-image.jpg'} 
+                        alt="Загруженное фото" 
+                        className={styles.uploadedPhoto}
+                      />
+                    </div>
                   ) : (
-                    <span className={styles.placeholderText}>
-                      Загрузите фото, чтобы увидеть его здесь
-                    </span>
+                    <div className={styles.placeholderContainer}>
+                      <span className={styles.placeholderText}>
+                        Загрузите фото, чтобы увидеть его здесь
+                      </span>
+                      <div className={styles.uploadInstructions}>
+                        <p>Требования к фото:</p>
+                        <ul>
+                          <li>Четко видимое лицо</li>
+                          <li>Хорошее освещение</li>
+                          <li>Форматы: JPEG, PNG, WebP</li>
+                          <li>Максимальный размер: 10MB</li>
+                        </ul>
+                      </div>
+                    </div>
                   )}
                 </div>
               </div>
               <FrameSelection />
             </div>
+            
             <img 
               src={isDark ? cowboyDark : cowboyLight} 
               className={styles.presetCowboy} 
@@ -86,7 +126,13 @@ const MainPage = () => {
           </div>
         </div>
         
-        <GenerationSection onGenerate={handleGenerate} />
+        <GenerationSection 
+          onGenerate={handleGenerate} 
+          isLoading={isGenerating}
+          generationId={generationId}
+          hasPhoto={!!uploadedPhoto}
+          hasFrame={!!selectedFrame}
+        />
       </div>
       <Footer />
     </div>

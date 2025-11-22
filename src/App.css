@@ -1,16 +1,13 @@
-/* App.css */
 .App {
   transition: all 0.3s ease;
   min-height: 100vh;
 }
 
-/* Глобальные стили для темной темы */
 body.dark-theme {
   background-color: #11012E;
   color: #FBFF00;
 }
 
-/* Глобальные стили для светлой темы */
 body.light-theme {
   background-color: #FBFF00;
   color: #11012E;

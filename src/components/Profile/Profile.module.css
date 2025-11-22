@@ -30,7 +30,7 @@
   border-radius: 30px;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
   transition: all 0.3s ease;
-  flex: 2;
+  flex: 4;
   min-width: 400px;
 }
 

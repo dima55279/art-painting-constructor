@@ -1,47 +1,49 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate, Link } from 'react-router-dom'
-import { login } from '../../store/slices/authSlice'
-import Header from '../../components/Header/Header'
-import Footer from '../../components/Footer/Footer'
+import { useLoginMutation } from '../../services/api'
+import { setCredentials } from '../../store/slices/authSlice' // Изменено с loginSuccess на setCredentials
+import Header from '../Header/Header'
+import Footer from '../Footer/Footer'
 import styles from './Login.module.css'
 
 const Login = () => {
   const dispatch = useDispatch()
   const navigate = useNavigate()
   const { isDark } = useSelector((state) => state.theme)
+  const [login, { isLoading, error }] = useLoginMutation()
+
   const [formData, setFormData] = useState({
     username: '',
     password: '',
   })
-  const [error, setError] = useState('')
 
   const handleChange = (e) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
     })
-    setError('')
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
     
-    // Базовая валидация
     if (!formData.username || !formData.password) {
-      setError('Все поля обязательны для заполнения')
       return
     }
 
-    // Имитация авторизации
     try {
-      dispatch(login({ 
-        username: formData.username,
-        id: Date.now()
+      const result = await login(formData).unwrap()
+      
+      // Изменено с loginSuccess на setCredentials
+      dispatch(setCredentials({
+        access_token: result.access_token,
+        user: result.user
       }))
+      
       navigate('/')
     } catch (err) {
-      setError('Ошибка авторизации')
+      console.error('Login error:', err)
     }
   }
 
@@ -56,7 +58,11 @@ const Login = () => {
             <h1 className={styles.registrationHeader}>ВХОД</h1>
             
             <form onSubmit={handleSubmit} className={styles.form}>
-              {error && <div className={styles.errorMessage}>{error}</div>}
+              {error && (
+                <div className={styles.errorMessage}>
+                  {error.data?.message || 'Ошибка авторизации'}
+                </div>
+              )}
               
               <div className={styles.formGroup}>
                 <input
@@ -67,6 +73,7 @@ const Login = () => {
                   onChange={handleChange}
                   placeholder="Введите имя пользователя"
                   required
+                  disabled={isLoading}
                 />
               </div>
               
@@ -79,11 +86,16 @@ const Login = () => {
                   onChange={handleChange}
                   placeholder="Введите пароль"
                   required
+                  disabled={isLoading}
                 />
               </div>
               
-              <button type="submit" className={styles.btnLoginSubmit}>
-                ВОЙТИ
+              <button 
+                type="submit" 
+                className={styles.btnLoginSubmit}
+                disabled={isLoading}
+              >
+                {isLoading ? 'ВХОД...' : 'ВОЙТИ'}
               </button>
               
             </form>

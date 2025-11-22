@@ -23,8 +23,21 @@ export const photoSlice = createSlice({
       state.uploadedPhoto = null
       state.generatedImage = null
     },
+    // Новый reducer для обновления информации о фото
+    updatePhotoInfo: (state, action) => {
+      if (state.uploadedPhoto) {
+        state.uploadedPhoto = { ...state.uploadedPhoto, ...action.payload }
+      }
+    }
   },
 })
 
-export const { setUploadedPhoto, setGeneratedImage, setLoading, clearPhoto } = photoSlice.actions
+export const { 
+  setUploadedPhoto, 
+  setGeneratedImage, 
+  setLoading, 
+  clearPhoto,
+  updatePhotoInfo 
+} = photoSlice.actions
+
 export default photoSlice.reducer

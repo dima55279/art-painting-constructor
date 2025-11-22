@@ -1,15 +1,18 @@
 import React, { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate, Link } from 'react-router-dom'
-import { register } from '../../store/slices/authSlice'
-import Header from '../../components/Header/Header'
-import Footer from '../../components/Footer/Footer'
+import { useRegisterMutation } from '../../services/api'
+import { setCredentials } from '../../store/slices/authSlice' // Изменено с loginSuccess на setCredentials
+import Header from '../Header/Header'
+import Footer from '../Footer/Footer'
 import styles from './Registration.module.css'
 
 const Registration = () => {
   const dispatch = useDispatch()
   const navigate = useNavigate()
   const { isDark } = useSelector((state) => state.theme)
+  const [register, { isLoading, error }] = useRegisterMutation()
+
   const [formData, setFormData] = useState({
     username: '',
     phone: '',
@@ -24,7 +27,6 @@ const Registration = () => {
       ...formData,
       [e.target.name]: e.target.value,
     })
-    // Очищаем ошибку при изменении поля
     if (errors[e.target.name]) {
       setErrors({
         ...errors,
@@ -60,18 +62,23 @@ const Registration = () => {
     return Object.keys(newErrors).length === 0
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
     
     if (validateForm()) {
-      const userData = {
-        username: formData.username,
-        email: formData.email,
-        phone: formData.phone,
-        id: Date.now()
+      try {
+        const result = await register(formData).unwrap()
+        
+        // Изменено с loginSuccess на setCredentials
+        dispatch(setCredentials({
+          access_token: result.access_token,
+          user: result.user
+        }))
+        
+        navigate('/')
+      } catch (err) {
+        console.error('Registration error:', err)
       }
-      dispatch(register(userData))
-      navigate('/')
     }
   }
 
@@ -86,6 +93,12 @@ const Registration = () => {
             <h1 className={styles.registrationHeader}>РЕГИСТРАЦИЯ</h1>
             
             <form onSubmit={handleSubmit} className={styles.form}>
+              {error && (
+                <div className={styles.errorText} style={{textAlign: 'center'}}>
+                  {error.data?.message || 'Ошибка регистрации'}
+                </div>
+              )}
+
               <div className={styles.formGroup}>
                 <input
                   className={`${styles.registerTextInput} ${themeClass} ${
@@ -97,6 +110,7 @@ const Registration = () => {
                   onChange={handleChange}
                   placeholder="Введите имя пользователя"
                   required
+                  disabled={isLoading}
                 />
                 {errors.username && <span className={styles.errorText}>{errors.username}</span>}
               </div>
@@ -112,6 +126,7 @@ const Registration = () => {
                   onChange={handleChange}
                   placeholder="Введите номер телефона"
                   required
+                  disabled={isLoading}
                 />
                 {errors.phone && <span className={styles.errorText}>{errors.phone}</span>}
               </div>
@@ -127,6 +142,7 @@ const Registration = () => {
                   onChange={handleChange}
                   placeholder="Введите электронную почту"
                   required
+                  disabled={isLoading}
                 />
                 {errors.email && <span className={styles.errorText}>{errors.email}</span>}
               </div>
@@ -142,6 +158,7 @@ const Registration = () => {
                   onChange={handleChange}
                   placeholder="Введите пароль"
                   required
+                  disabled={isLoading}
                 />
                 {errors.password && <span className={styles.errorText}>{errors.password}</span>}
               </div>
@@ -157,14 +174,19 @@ const Registration = () => {
                   onChange={handleChange}
                   placeholder="Повторите пароль"
                   required
+                  disabled={isLoading}
                 />
                 {errors.confirmPassword && (
                   <span className={styles.errorText}>{errors.confirmPassword}</span>
                 )}
               </div>
               
-              <button type="submit" className={styles.btnRegisterSubmit}>
-                ЗАРЕГИСТРИРОВАТЬСЯ
+              <button 
+                type="submit" 
+                className={styles.btnRegisterSubmit}
+                disabled={isLoading}
+              >
+                {isLoading ? 'РЕГИСТРАЦИЯ...' : 'ЗАРЕГИСТРИРОВАТЬСЯ'}
               </button>
               
               <div className={styles.formLoginQuestion}>

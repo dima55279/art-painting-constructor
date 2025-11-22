@@ -1,0 +1,31 @@
+# FastAPI и сервер
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+
+# База данных
+sqlalchemy[asyncio]==2.0.23
+aiomysql==0.2.0
+alembic==1.12.1
+
+# Аутентификация и безопасность
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+python-multipart==0.0.6
+
+# Работа с изображениями и компьютерное зрение
+opencv-python==4.8.1.78
+face-recognition==1.3.0
+pillow==9.5.0
+numpy==1.24.3
+
+# Файлы и данные
+python-dotenv==1.0.0
+pydantic[email]==2.5.0
+python-dateutil==2.8.2
+pydantic-settings
+
+# Дополнительные утилиты
+aiofiles==23.2.1
+email-validator==2.1.0
+jinja2==3.1.2
+httpx==0.28.1

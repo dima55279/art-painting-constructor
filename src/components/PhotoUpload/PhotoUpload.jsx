@@ -1,13 +1,17 @@
 import React, { useRef, useState } from 'react'
-import { useSelector } from 'react-redux'
-import { usePhotoUpload } from '../../hooks/usePhotoUpload'
+import { useSelector, useDispatch } from 'react-redux'
+import { useUploadPhotoMutation } from '../../services/api'
+import { setUploadedPhoto } from '../../store/slices/photoSlice'
 import styles from './PhotoUpload.module.css'
 
 const PhotoUpload = () => {
   const { isDark } = useSelector((state) => state.theme)
-  const { handlePhotoUpload, isLoading } = usePhotoUpload()
+  const { isAuthenticated } = useSelector((state) => state.auth)
+  const dispatch = useDispatch()
+  const [uploadPhoto, { isLoading }] = useUploadPhotoMutation()
   const fileInputRef = useRef(null)
   const [selectedFile, setSelectedFile] = useState(null)
+  const [previewUrl, setPreviewUrl] = useState(null)
 
   const handleFileSelect = (event) => {
     const file = event.target.files[0]
@@ -16,7 +20,15 @@ const PhotoUpload = () => {
         alert('Пожалуйста, выберите файл изображения (JPEG, PNG, etc.)')
         return
       }
+      
       setSelectedFile(file)
+      
+      // Создаем превью
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        setPreviewUrl(e.target.result)
+      }
+      reader.readAsDataURL(file)
     }
   }
 
@@ -31,16 +43,36 @@ const PhotoUpload = () => {
     }
 
     try {
-      await handlePhotoUpload(selectedFile)
-      alert('Фото успешно загружено! Теперь оно отображается в левой колонке.')
-      setSelectedFile(null) 
+      const formData = new FormData()
+      formData.append('file', selectedFile)
+      
+      console.log('Uploading photo...')
+      
+      const result = await uploadPhoto(formData).unwrap()
+      
+      // Сохраняем всю информацию о фото в Redux store
+      dispatch(setUploadedPhoto({
+        ...result,
+        previewUrl: previewUrl // Добавляем временный URL для превью
+      }))
+      
+      alert('Фото успешно загружено и проверено! Лицо обнаружено.')
+      setSelectedFile(null)
+      setPreviewUrl(null)
+      
+      if (fileInputRef.current) {
+        fileInputRef.current.value = ''
+      }
     } catch (error) {
-      alert(error.message)
+      console.error('Upload error:', error)
+      const errorMessage = error.data?.detail || error.data?.error || 'Ошибка при загрузке фото'
+      alert(errorMessage)
     }
   }
 
   const handleClearSelection = () => {
     setSelectedFile(null)
+    setPreviewUrl(null)
     if (fileInputRef.current) {
       fileInputRef.current.value = ''
     }
@@ -50,6 +82,9 @@ const PhotoUpload = () => {
 
   return (
     <div className={`${styles.photoUpload} ${themeClass}`}>
+      <h3 className={styles.uploadTitle}>
+        Загрузка фотографии
+      </h3>
       
       <input
         type="file"
@@ -60,40 +95,49 @@ const PhotoUpload = () => {
         disabled={isLoading}
       />
       
-      <button 
-        onClick={handleSelectClick}
-        className={styles.selectBtn}
-        disabled={isLoading}
-      >
-        Выбрать файл
-      </button>
+      <div className={styles.uploadControls}>
+        <button 
+          onClick={handleSelectClick}
+          className={styles.selectBtn}
+          disabled={isLoading}
+        >
+          {isLoading ? 'Загрузка...' : 'Выбрать файл'}
+        </button>
 
-      {selectedFile && (
-        <div className={styles.fileInfo}>
-          <div className={styles.fileDetails}>
-            <span className={styles.fileName}>{selectedFile.name}</span>
-            <span className={styles.fileSize}>
-              ({(selectedFile.size / 1024 / 1024).toFixed(2)} MB)
-            </span>
+        {selectedFile && (
+          <div className={styles.fileInfo}>
+            <div className={styles.fileDetails}>
+              <span className={styles.fileName}>{selectedFile.name}</span>
+              <span className={styles.fileSize}>
+                ({(selectedFile.size / 1024 / 1024).toFixed(2)} MB)
+              </span>
+            </div>
+            <button 
+              onClick={handleClearSelection}
+              className={styles.clearBtn}
+              disabled={isLoading}
+            >
+              ×
+            </button>
           </div>
-          <button 
-            onClick={handleClearSelection}
-            className={styles.clearBtn}
-            disabled={isLoading}
-          >
-            ×
-          </button>
-        </div>
-      )}
+        )}
+        
+        <button 
+          onClick={handleUploadClick}
+          className={styles.uploadBtn}
+          disabled={!selectedFile || isLoading}
+        >
+          {isLoading ? 'Проверка...' : 'Загрузить фото'}
+        </button>
+      </div>
       
-      <button 
-        onClick={handleUploadClick}
-        className={styles.uploadBtn}
-        disabled={!selectedFile || isLoading}
-      >
-        {isLoading ? 'Загрузка...' : 'Загрузить фото'}
-      </button>
-      
+      <div className={styles.uploadTips}>
+        {!isAuthenticated && (
+          <div className={styles.authHint}>
+            <p>💡 <strong>Совет:</strong> Для сохранения фото в профиле и доступа к истории загрузок, рекомендуем зарегистрироваться.</p>
+          </div>
+        )}
+      </div>
     </div>
   )
 }

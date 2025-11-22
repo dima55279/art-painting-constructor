@@ -1,0 +1,16 @@
+# Игнорируем все файлы в подпапках, кроме .gitkeep
+static/uploaded_photos/*
+!uploaded_photos/.gitkeep
+
+static/generated_images/*
+!generated_images/.gitkeep
+
+temp_uploads/*
+
+# Временные файлы
+*.tmp
+*.temp
+__pycache__/
+
+# Логи
+*.log

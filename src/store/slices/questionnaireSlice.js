@@ -14,7 +14,12 @@ export const questionnaireSlice = createSlice({
   reducers: {
     setAnswer: (state, action) => {
       const { field, value } = action.payload
-      state.answers[field] = value
+      // Убедимся, что поле существует в состоянии
+      if (state.answers.hasOwnProperty(field)) {
+        state.answers[field] = value
+      } else {
+        console.warn(`Попытка установить несуществующее поле: ${field}`)
+      }
     },
     clearAnswers: (state) => {
       state.answers = {

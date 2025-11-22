@@ -1,7 +1,8 @@
 import React from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { toggleTheme } from '../../store/slices/themeSlice'
-import { logout } from '../../store/slices/authSlice'
+import { clearCredentials } from '../../store/slices/authSlice' // Изменено с logout на clearCredentials
+import { useLogoutMutation } from '../../services/api'
 import { Link, useLocation } from 'react-router-dom'
 import styles from './Header.module.css'
 import logoDark from '../../images/header/logoDark.png'
@@ -13,12 +14,20 @@ const Header = () => {
   const { isAuthenticated } = useSelector((state) => state.auth)
   const { isDark } = useSelector((state) => state.theme)
 
+  const [logoutApi] = useLogoutMutation()
+
   const handleThemeToggle = () => {
     dispatch(toggleTheme())
   }
 
-  const handleLogout = () => {
-    dispatch(logout())
+  const handleLogout = async () => {
+    try {
+      await logoutApi().unwrap()
+    } catch (error) {
+      console.error('Logout error:', error)
+    } finally {
+      dispatch(clearCredentials()) // Изменено с logout на clearCredentials
+    }
   }
 
   const isMainPage = location.pathname === '/'

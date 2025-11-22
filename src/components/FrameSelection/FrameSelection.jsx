@@ -1,32 +1,20 @@
-import React, { useRef, Suspense, useState } from 'react'
+import React, { useRef, Suspense, useState, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
-import { selectFrame } from '../../store/slices/frameSlice'
+import { 
+  selectFrame, 
+  setFrames, 
+  setLoading, 
+  setError,
+  selectSelectedFrame,
+  selectAllFrames,
+  getCameraSettingsByType
+} from '../../store/slices/frameSlice'
+import { useGetFramesQuery, useSelectFrameMutation } from '../../services/api'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { OrbitControls, Center, SoftShadows } from '@react-three/drei'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 import * as THREE from 'three'
 import styles from './FrameSelection.module.css'
-
-import cowboyModel from '../../frames/cowboy.glb'
-import pumpkinModel from '../../frames/pumpkin.glb'
-import flowersModel from '../../frames/flowers.glb'
-import christmasModel from '../../frames/christmas.glb'
-import seaModel from '../../frames/sea.glb'
-import popartModel from '../../frames/cowboy.glb'
-import woodModel from '../../frames/cowboy.glb'
-import metalModel from '../../frames/cowboy.glb'
-import goldModel from '../../frames/cowboy.glb'
-
-import cowboyPreview from '../../images/frames/cowboy.png'
-import pumpkinPreview from '../../images/frames/pumpkin.png'
-import flowersPreview from '../../images/frames/flowers.png'
-import christmasPreview from '../../images/frames/christmas.png'
-import seaPreview from '../../images/frames/sea.png'
-import popartPreview from '../../images/frames/cowboy.png'
-import woodPreview from '../../images/frames/cowboy.png'
-import metalPreview from '../../images/frames/cowboy.png'
-import goldPreview from '../../images/frames/cowboy.png'
-import defaultPreview from '../../images/frames/cowboy.png'
 
 const CameraController = ({ model, cameraSettings }) => {
   const { camera, controls } = useThree()
@@ -68,42 +56,12 @@ const Lighting = () => {
         shadow-camera-top={20}
         shadow-camera-bottom={-20}
       />
-
-      <directionalLight
-        position={[0, 0, 10]}
-        intensity={0.8}
-        color="#ffffff"
-      />
-      
-      <directionalLight
-        position={[-10, 5, 0]}
-        intensity={0.6}
-        color="#ffffee"
-      />
-      
-      <directionalLight
-        position={[0, -5, -10]}
-        intensity={0.4}
-        color="#aaaaff"
-      />
-      
+      <directionalLight position={[0, 0, 10]} intensity={0.8} color="#ffffff" />
+      <directionalLight position={[-10, 5, 0]} intensity={0.6} color="#ffffee" />
+      <directionalLight position={[0, -5, -10]} intensity={0.4} color="#aaaaff" />
       <ambientLight intensity={0.3} color="#ffffff" />
-      
-      <pointLight
-        position={[5, 5, 5]}
-        intensity={0.5}
-        color="#fff8e1"
-        distance={30}
-        decay={2}
-      />
-      
-      <pointLight
-        position={[-5, -5, 5]}
-        intensity={0.3}
-        color="#e3f2fd"
-        distance={25}
-        decay={2}
-      />
+      <pointLight position={[5, 5, 5]} intensity={0.5} color="#fff8e1" distance={30} decay={2} />
+      <pointLight position={[-5, -5, 5]} intensity={0.3} color="#e3f2fd" distance={25} decay={2} />
     </>
   )
 }
@@ -120,10 +78,13 @@ const FrameModel = ({ modelUrl, cameraSettings }) => {
         setLoading(true)
         setError(null)
 
+        if (!modelUrl) {
+          setLoading(false)
+          return
+        }
+
         const loader = new GLTFLoader()
         const gltf = await loader.loadAsync(modelUrl)
-        
-        console.log('GLB model loaded:', gltf)
         
         gltf.scene.traverse((child) => {
           if (child.isMesh) {
@@ -148,9 +109,7 @@ const FrameModel = ({ modelUrl, cameraSettings }) => {
       }
     }
 
-    if (modelUrl) {
-      loadModel()
-    }
+    loadModel()
   }, [modelUrl])
 
   useFrame(() => {
@@ -168,23 +127,14 @@ const FrameModel = ({ modelUrl, cameraSettings }) => {
     )
   }
 
-  if (error || !model) {
-    return (
-      <mesh>
-        <boxGeometry args={[1, 1, 1]} />
-        <meshStandardMaterial color="red" />
-      </mesh>
-    )
+  if (error || !modelUrl) {
+    return <SimpleFrame type="default" />
   }
 
   return (
     <group ref={groupRef}>
       <Center>
-        <primitive 
-          object={model} 
-          scale={1}
-          position={[0, 0, 0]}
-        />
+        <primitive object={model} scale={1} position={[0, 0, 0]} />
       </Center>
       <CameraController model={model} cameraSettings={cameraSettings} />
     </group>
@@ -204,18 +154,13 @@ const ModelFallback = () => {
     <Center>
       <mesh ref={meshRef}>
         <boxGeometry args={[1, 1, 1]} />
-        <meshStandardMaterial 
-          color="#666666" 
-          roughness={0.3}
-          metalness={0.7}
-          wireframe={false}
-        />
+        <meshStandardMaterial color="#666666" roughness={0.3} metalness={0.7} />
       </mesh>
     </Center>
   )
 }
 
-const SimpleFrame = ({ type, cameraSettings }) => {
+const SimpleFrame = ({ type }) => {
   const meshRef = useRef()
   
   useFrame(() => {
@@ -229,21 +174,13 @@ const SimpleFrame = ({ type, cameraSettings }) => {
   let color = "#ffffff"
 
   switch(type) {
-    case 'cowboy':
-      geometry = <ringGeometry args={[1.2, 1.5, 32]} />
+    case 'wood':
+      geometry = <boxGeometry args={[1.5, 1.5, 0.2]} />
       color = "#8B4513"
       break
-    case 'pumpkin':
-      geometry = <ringGeometry args={[1.2, 1.5, 32]} />
-      color = "#FF7518"
-      break
-    case 'flowers':
-      geometry = <torusGeometry args={[1, 0.1, 16, 100]} />
-      color = "#FF69B4"
-      break
-    case 'christmas':
-      geometry = <circleGeometry args={[1.3, 32]} />
-      color = "#2E8B57"
+    case 'gold':
+      geometry = <ringGeometry args={[1, 1.4, 32]} />
+      color = "#FFD700"
       break
     case 'sea':
       geometry = <ringGeometry args={[1, 1.4, 32]} />
@@ -253,32 +190,20 @@ const SimpleFrame = ({ type, cameraSettings }) => {
       geometry = <cylinderGeometry args={[1, 1.3, 0.15, 8]} />
       color = "#FFFF00"
       break
-    case 'wood':
-      geometry = <boxGeometry args={[1.5, 1.5, 0.2]} />
-      color = "#8B4513"
-      break
-    case 'metal':
-      geometry = <ringGeometry args={[1.1, 1.3, 32]} />
-      color = "#C0C0C0"
-      break
-    case 'gold':
-      geometry = <ringGeometry args={[1, 1.4, 32]} />
-      color = "#FFD700"
+    case 'halloween':
+      geometry = <ringGeometry args={[1.2, 1.5, 32]} />
+      color = "#FF7518"
       break
     default:
       geometry = <ringGeometry args={[1.2, 1.5, 32]} />
+      color = "#cccccc"
   }
 
   return (
     <Center>
       <mesh ref={meshRef} scale={scale} castShadow receiveShadow>
         {geometry}
-        <meshStandardMaterial 
-          color={color}
-          roughness={0.3}
-          metalness={0.7}
-          wireframe={false}
-        />
+        <meshStandardMaterial color={color} roughness={0.3} metalness={0.7} />
       </mesh>
     </Center>
   )
@@ -286,153 +211,133 @@ const SimpleFrame = ({ type, cameraSettings }) => {
 
 const FrameSelection = () => {
   const dispatch = useDispatch()
-  const { frames, selectedFrame } = useSelector((state) => state.frame)
+  const selectedFrame = useSelector(selectSelectedFrame)
+  const framesFromRedux = useSelector(selectAllFrames)
   const { isDark } = useSelector((state) => state.theme)
 
-  const framesWithPreview = frames.map(frame => ({
-    ...frame,
-    previewImage: getFramePreview(frame.id),
-    modelUrl: getFrameModelUrl(frame.id),
-    type: getFrameType(frame.id),
-    cameraSettings: frame.cameraSettings || {
-      minDistance: 50,
-      maxDistance: 100,
-      initialPosition: [0, 0, 0]
-    }
-  }))
+  const { data: framesData, isLoading: isFramesLoading, error: framesError } = useGetFramesQuery({ limit: 100 })
+  const [selectFrameApi, { isLoading: isSelecting }] = useSelectFrameMutation()
 
-  const handleFrameSelect = (frameId) => {
-    dispatch(selectFrame(frameId))
+  // Синхронизируем данные с сервера с Redux store
+  useEffect(() => {
+    if (framesData?.frames) {
+      dispatch(setFrames(framesData.frames))
+    }
+    if (framesError) {
+      dispatch(setError(framesError))
+    }
+  }, [framesData, framesError, dispatch])
+
+  const getImageUrl = (imagePath) => {
+    if (!imagePath) return null
+    if (imagePath.startsWith('http')) return imagePath
+    return `http://localhost:8000${imagePath}`
+  }
+
+  const handleFrameSelect = async (frameId) => {
+    try {
+      await selectFrameApi(frameId).unwrap()
+      dispatch(selectFrame(frameId))
+    } catch (error) {
+      console.error('Error selecting frame:', error)
+      // Если API выдает ошибку, все равно выбираем рамку локально
+      dispatch(selectFrame(frameId))
+    }
   }
 
   const themeClass = isDark ? styles.dark : styles.light
-  const selectedFrameData = framesWithPreview.find(f => f.id === selectedFrame)
 
-  function getFramePreview(frameId) {
-    const previews = {
-      1: cowboyPreview,
-      2: pumpkinPreview,
-      3: flowersPreview,
-      4: christmasPreview,
-      5: seaPreview,
-      6: popartPreview,
-      7: woodPreview,
-      8: metalPreview,
-      9: goldPreview
-    }
-    return previews[frameId] || defaultPreview
-  }
+  // Используем frames из Redux store (которые уже обогащены настройками камеры)
+  const availableFrames = framesFromRedux
+  const selectedFrameData = availableFrames.find(f => f.id === selectedFrame)
 
-  function getFrameModelUrl(frameId) {
-    const models = {
-      1: cowboyModel,
-      2: pumpkinModel,
-      3: flowersModel,
-      4: christmasModel,
-      5: seaModel,
-      6: popartModel,
-      7: woodModel,
-      8: metalModel,
-      9: goldModel
-    }
-    return models[frameId] || cowboyModel
-  }
-
-  function getFrameType(frameId) {
-    const types = {
-      1: 'cowboy',
-      2: 'pumpkin', 
-      3: 'flowers',
-      4: 'christmas',
-      5: 'sea',
-      6: 'popart',
-      7: 'wood',
-      8: 'metal',
-      9: 'gold'
-    }
-    return types[frameId] || 'cowboy'
-  }
+  console.log('Available frames from Redux:', availableFrames)
+  console.log('Selected frame:', selectedFrameData)
 
   return (
     <div className={`${styles.frameSelection} ${themeClass}`}>
       <h3 className={styles.frameTitle}>Выбор рамки</h3>
       
-      <div className={styles.framesContainer}>
-        <div className={styles.framesScroll}>
-          {framesWithPreview.map((frame) => (
-            <div
-              key={frame.id}
-              className={`${styles.frame} ${themeClass} ${
-                selectedFrame === frame.id ? styles.selected : ''
-              }`}
-              onClick={() => handleFrameSelect(frame.id)}
-            >
-              <div className={styles.frameContent}>
-                <div className={styles.framePreview}>
-                  <img 
-                    src={frame.previewImage} 
-                    alt={`Превью ${frame.name}`}
-                    className={styles.framePreviewImage}
-                    onError={(e) => {
-                      e.target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjMzMzIiBvcGFjaXR5PSIwLjMiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjE4IiBmaWxsPSIjZmZmIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSI+UHJldmlldzwvdGV4dD48L3N2Zz4='
-                    }}
-                  />
-                </div>
-                <span className={styles.frameName}>{frame.name}</span>
-              </div>
-            </div>
-          ))}
+      {isFramesLoading ? (
+        <div className={styles.loading}>Загрузка рамок...</div>
+      ) : framesError ? (
+        <div className={styles.error}>
+          Ошибка загрузки рамок: {framesError.status} - {framesError.data?.detail || 'Неизвестная ошибка'}
         </div>
-      </div>
-
-      {selectedFrameData && (
-        <div className={`${styles.selectedFrameInfo} ${themeClass}`}>
-          <h4 className={styles.selectedFrameTitle}>3D модель выбранной рамки</h4>
-          <div className={styles.selectedFrameDetails}>
-            <div className={styles.frameDetailRow}>
-              <span className={styles.detailLabel}>Выбрана рамка:</span>
-              <span className={styles.detailValue}>{selectedFrameData.name}</span>
-            </div>
-            
-            <div className={styles.modelViewerContainer}>
-              <Canvas
-                camera={{ 
-                  position: selectedFrameData.cameraSettings?.initialPosition || [0, 0, 0], 
-                  fov: 50 
-                }}
-                className={styles.modelCanvas}
-                shadows={{
-                  enabled: true,
-                  type: THREE.PCFSoftShadowMap
-                }}
-                gl={{
-                  antialias: true,
-                  alpha: true
-                }}
-              >
-                <SoftShadows size={25} samples={16} focus={0.5} />
-                
-                <Lighting />
-                
-                <Suspense fallback={<ModelFallback />}>
-                  <FrameModel 
-                    modelUrl={selectedFrameData.modelUrl} 
-                    cameraSettings={selectedFrameData.cameraSettings}
-                  />
-                </Suspense>
-                
-                <OrbitControls 
-                  enableZoom={true}
-                  enablePan={false}
-                  enableRotate={true}
-                  maxDistance={selectedFrameData.cameraSettings?.maxDistance || 100}
-                  minDistance={selectedFrameData.cameraSettings?.minDistance || 50}
-                  autoRotate={false}
-                />
-              </Canvas>
+      ) : (
+        <>
+          <div className={styles.framesContainer}>
+            <div className={styles.framesScroll}>
+              {availableFrames.map((frame) => (
+                <div
+                  key={frame.id}
+                  className={`${styles.frame} ${themeClass} ${
+                    selectedFrame === frame.id ? styles.selected : ''
+                  }`}
+                  onClick={() => handleFrameSelect(frame.id)}
+                >
+                  <div className={styles.frameContent}>
+                    <div className={styles.framePreview}>
+                      <img 
+                        src={getImageUrl(frame.preview_image_url) || '/placeholder-frame.png'}
+                        alt={`Превью ${frame.name}`}
+                        className={styles.framePreviewImage}
+                        onError={(e) => {
+                          e.target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjMzMzIiBvcGFjaXR5PSIwLjMiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjE4IiBmaWxsPSIjZmZmIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSI+UHJldmlldzwvdGV4dD48L3N2Zz4='
+                        }}
+                      />
+                    </div>
+                    <span className={styles.frameName}>{frame.name}</span>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
-        </div>
+
+          {selectedFrameData && (
+            <div className={`${styles.selectedFrameInfo} ${themeClass}`}>
+              <h4 className={styles.selectedFrameTitle}>3D модель выбранной рамки: {selectedFrameData.name}</h4>                
+                <div className={styles.modelViewerContainer}>
+                  <Canvas
+                    camera={{ 
+                      position: selectedFrameData.cameraSettings?.initialPosition || [0, 0, 5], 
+                      fov: 50 
+                    }}
+                    className={styles.modelCanvas}
+                    shadows={{ enabled: true, type: THREE.PCFSoftShadowMap }}
+                    gl={{ antialias: true, alpha: true }}
+                  >
+                    <SoftShadows size={25} samples={16} focus={0.5} />
+                    <Lighting />
+                    <Suspense fallback={<ModelFallback />}>
+                      {selectedFrameData.model_3d_url ? (
+                        <FrameModel 
+                          modelUrl={getImageUrl(selectedFrameData.model_3d_url)}
+                          cameraSettings={selectedFrameData.cameraSettings}
+                        />
+                      ) : (
+                        <SimpleFrame type={selectedFrameData.frame_type} />
+                      )}
+                    </Suspense>
+                    <OrbitControls 
+                      enableZoom={true}
+                      enablePan={false}
+                      enableRotate={true}
+                      maxDistance={selectedFrameData.cameraSettings?.maxDistance || 10}
+                      minDistance={selectedFrameData.cameraSettings?.minDistance || 3}
+                      autoRotate={false}
+                    />
+                  </Canvas>
+                </div>
+              </div>
+          )}
+
+          {availableFrames.length === 0 && (
+            <div className={styles.noFrames}>
+              Рамки не найдены. Убедитесь, что сервер запущен и база данных содержит рамки.
+            </div>
+          )}
+        </>
       )}
     </div>
   )

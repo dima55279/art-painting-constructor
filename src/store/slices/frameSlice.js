@@ -1,99 +1,21 @@
 import { createSlice } from '@reduxjs/toolkit'
 
+// Статические настройки камеры для каждого типа рамки
+const frameCameraSettings = {
+  'cowboy': { minDistance: 10, maxDistance: 20, initialPosition: [0, 0, 50] },
+  'pumpkin': { minDistance: 100, maxDistance: 125, initialPosition: [90, 90, 45] },
+  'flowers': { minDistance: 5, maxDistance: 7, initialPosition: [0, 0, 40] },
+  'christmas': { minDistance: 3, maxDistance: 5, initialPosition: [0, 0, 55] },
+  'sea': { minDistance: 5, maxDistance: 7, initialPosition: [0, 0, 48] }
+}
+
 const initialState = {
   selectedFrame: null,
-  frames: [
-    { 
-      id: 1, 
-      name: 'Вестерн', 
-      type: 'cowboy',
-      cameraSettings: {
-        minDistance: 10,
-        maxDistance: 20,
-        initialPosition: [0, 0, 50]
-      }
-    },
-    { 
-      id: 2, 
-      name: 'Хэллоуин', 
-      type: 'pumpkin',
-      cameraSettings: {
-        minDistance: 100,
-        maxDistance: 125,
-        initialPosition: [90, 90, 45]
-      }
-    },
-    { 
-      id: 3, 
-      name: 'Цветы', 
-      type: 'flowers',
-      cameraSettings: {
-        minDistance: 5,
-        maxDistance: 7,
-        initialPosition: [0, 0, 40]
-      }
-    },
-    { 
-      id: 4, 
-      name: 'Новогодняя', 
-      type: 'christmas',
-      cameraSettings: {
-        minDistance: 3,
-        maxDistance: 5,
-        initialPosition: [0, 0, 55]
-      }
-    },
-    { 
-      id: 5, 
-      name: 'Море', 
-      type: 'sea',
-      cameraSettings: {
-        minDistance: 5,
-        maxDistance: 7,
-        initialPosition: [0, 0, 48]
-      }
-    },
-    { 
-      id: 6, 
-      name: 'Поп-арт', 
-      type: 'popart',
-      cameraSettings: {
-        minDistance: 10,
-        maxDistance: 20,
-        initialPosition: [0, 0, 42]
-      }
-    },
-    { 
-      id: 7, 
-      name: 'Дерево', 
-      type: 'wood',
-      cameraSettings: {
-        minDistance: 10,
-        maxDistance: 20,
-        initialPosition: [0, 0, 52]
-      }
-    },
-    { 
-      id: 8, 
-      name: 'Металл', 
-      type: 'metal',
-      cameraSettings: {
-        minDistance: 10,
-        maxDistance: 20,
-        initialPosition: [0, 0, 46]
-      }
-    },
-    { 
-      id: 9, 
-      name: 'Золото', 
-      type: 'gold',
-      cameraSettings: {
-        minDistance: 10,
-        maxDistance: 20,
-        initialPosition: [0, 0, 58]
-      }
-    },
-  ],
+  // Убираем статические frames, так как будем использовать данные с сервера
+  frames: [],
+  // Добавляем флаги для управления состоянием
+  isLoading: false,
+  error: null
 }
 
 export const frameSlice = createSlice({
@@ -106,8 +28,46 @@ export const frameSlice = createSlice({
     clearFrame: (state) => {
       state.selectedFrame = null
     },
+    // Новые actions для работы с данными с сервера
+    setFrames: (state, action) => {
+      state.frames = action.payload
+    },
+    setLoading: (state, action) => {
+      state.isLoading = action.payload
+    },
+    setError: (state, action) => {
+      state.error = action.payload
+    },
+    // Action для обогащения данных с сервера настройками камеры
+    enrichFramesWithCameraSettings: (state) => {
+      state.frames = state.frames.map(frame => ({
+        ...frame,
+        cameraSettings: frameCameraSettings[frame.frame_type] || frameCameraSettings.default
+      }))
+    }
   },
 })
 
-export const { selectFrame, clearFrame } = frameSlice.actions
+// Селекторы для удобного доступа к данным
+export const selectSelectedFrame = (state) => state.frame.selectedFrame
+export const selectAllFrames = (state) => state.frame.frames
+export const selectFrameById = (frameId) => (state) => 
+  state.frame.frames.find(frame => frame.id === frameId)
+export const selectFrameLoading = (state) => state.frame.isLoading
+export const selectFrameError = (state) => state.frame.error
+
+// Вспомогательная функция для получения настроек камеры по типу рамки
+export const getCameraSettingsByType = (frameType) => {
+  return frameCameraSettings[frameType] || frameCameraSettings.default
+}
+
+export const { 
+  selectFrame, 
+  clearFrame, 
+  setFrames, 
+  setLoading, 
+  setError,
+  enrichFramesWithCameraSettings 
+} = frameSlice.actions
+
 export default frameSlice.reducer

@@ -1,16 +1,25 @@
 import { configureStore } from '@reduxjs/toolkit'
-import themeReducer from './slices/themeSlice'
-import photoReducer from './slices/photoSlice'
+import { api } from '../services/api'
 import frameReducer from './slices/frameSlice'
-import questionnaireReducer from './slices/questionnaireSlice'
 import authReducer from './slices/authSlice'
+import photoReducer from './slices/photoSlice'
+import questionnaireReducer from './slices/questionnaireSlice'
+import themeReducer from './slices/themeSlice'
+import { frameMiddleware } from './middleware/frameMiddleware'
 
 export const store = configureStore({
   reducer: {
-    theme: themeReducer,
-    photo: photoReducer,
-    frame: frameReducer,
-    questionnaire: questionnaireReducer,
     auth: authReducer,
+    frame: frameReducer,
+    photo: photoReducer,
+    questionnaire: questionnaireReducer,
+    theme: themeReducer,
+    [api.reducerPath]: api.reducer,
   },
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware()
+      .concat(api.middleware)
+      .concat(frameMiddleware),
 })
+
+export default store

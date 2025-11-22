@@ -1,24 +1,27 @@
 import React from 'react'
 import { useSelector } from 'react-redux'
-import { Link } from 'react-router-dom'
-import Header from '../../components/Header/Header'
-import Footer from '../../components/Footer/Footer'
+import { useGetProfileQuery, useGetOrdersQuery, useGetSubscriptionQuery } from '../../services/api'
+import Header from '../Header/Header'
+import Footer from '../Footer/Footer'
 import styles from './Profile.module.css'
 
 const Profile = () => {
   const { user } = useSelector((state) => state.auth)
   const { isDark } = useSelector((state) => state.theme)
 
-  const orderHistory = [
-    { id: 1, name: "Картина 1", image: "paintingPlaceholderDark.png" },
-    { id: 2, name: "Картина 2", image: "paintingPlaceholderDark.png" },
-    { id: 3, name: "Картина 3", image: "paintingPlaceholderDark.png" },
-    { id: 4, name: "Картина 4", image: "paintingPlaceholderDark.png" },
-    { id: 5, name: "Картина 5", image: "paintingPlaceholderDark.png" },
-    { id: 6, name: "Картина 6", image: "paintingPlaceholderDark.png" },
-  ]
+  const { data: profileData, isLoading: isProfileLoading } = useGetProfileQuery()
+  const { data: ordersData, isLoading: isOrdersLoading } = useGetOrdersQuery()
+  const { data: subscriptionData, isLoading: isSubscriptionLoading } = useGetSubscriptionQuery()
 
   const themeClass = isDark ? styles.dark : styles.light
+
+  if (isProfileLoading) {
+    return <div>Загрузка...</div>
+  }
+
+  const currentUser = profileData?.user || user
+  const orders = ordersData?.orders || []
+  const subscription = subscriptionData?.subscription
 
   return (
     <div className={styles.profilePage}>
@@ -40,9 +43,9 @@ const Profile = () => {
                   className={styles.profileImage}
                 />
                 <div className={`${styles.profileInfo} ${themeClass}`}>
-                  <p className={styles.themeText}>{user?.username || 'Логин'}</p>
-                  <p className={styles.themeText}>{user?.email || 'Электронная почта'}</p>
-                  <p className={styles.themeText}>{user?.phone || 'Номер телефона'}</p>
+                  <p className={styles.themeText}>{currentUser?.username || 'Логин'}</p>
+                  <p className={styles.themeText}>{currentUser?.email || 'Электронная почта'}</p>
+                  <p className={styles.themeText}>{currentUser?.phone || 'Номер телефона'}</p>
                 </div>
               </div>
             </div>
@@ -50,7 +53,9 @@ const Profile = () => {
             <div className={`${styles.purchaseBlock} ${themeClass}`}>
               <div className={styles.subscribeBlock}>
                 <h2 className={`${styles.subscribeTitle} ${styles.themeText}`}>ПОДПИСКА</h2>
-                <p className={`${styles.subscribeInfo} ${styles.themeText}`}>Вы ещё не оформили подписку</p>
+                <p className={`${styles.subscribeInfo} ${styles.themeText}`}>
+                  {subscription ? `Активна до: ${new Date(subscription.expiresAt).toLocaleDateString()}` : 'Вы ещё не оформили подписку'}
+                </p>
               </div>
               
               <div className={styles.orderHistorySection}>
@@ -58,26 +63,30 @@ const Profile = () => {
                 
                 <div className={styles.paintingsContainer}>
                   <div className={styles.paintingsScroll}>
-                    {orderHistory.map((painting) => (
-                      <div key={painting.id} className={`${styles.painting} ${themeClass}`}>
-                        <img 
-                          src={isDark
-                            ? require(`../../images/profile/${painting.image}`)
-                            : require(`../../images/profile/paintingPlaceholderLight.png`)
-                          } 
-                          alt={painting.name}
-                          className={styles.paintingImage}
-                        />
-                        <p className={`${styles.paintingInfo} ${styles.themeText}`}>{painting.name}</p>
-                      </div>
-                    ))}
+                    {orders.length > 0 ? (
+                      orders.map((order) => (
+                        <div key={order.id} className={`${styles.painting} ${themeClass}`}>
+                          <img 
+                            src={order.imageUrl || (isDark
+                              ? require('../../images/profile/paintingPlaceholderDark.png')
+                              : require('../../images/profile/paintingPlaceholderLight.png')
+                            )} 
+                            alt={order.paintingName}
+                            className={styles.paintingImage}
+                          />
+                          <p className={`${styles.paintingInfo} ${styles.themeText}`}>{order.paintingName}</p>
+                        </div>
+                      ))
+                    ) : (
+                      <p className={styles.themeText}>Заказов пока нет</p>
+                    )}
                   </div>
                 </div>
                 
-                {orderHistory.length > 0 && (
+                {orders.length > 0 && (
                   <div className={`${styles.orderStats} ${themeClass}`}>
                     <p className={styles.themeText}>
-                      Всего заказов: <strong>{orderHistory.length}</strong>
+                      Всего заказов: <strong>{orders.length}</strong>
                     </p>
                   </div>
                 )}
