@@ -1,13 +1,11 @@
-from fastapi import APIRouter, HTTPException, status, Request, Depends
-from typing import Optional
+from fastapi import APIRouter, HTTPException, status, Request
 import uuid
 from datetime import datetime, timedelta
 import json
 from pydantic import ValidationError
 
-from app.schemas.questionnaire import QuestionnaireData, QuestionnaireResponse
-from app.dependencies import get_current_user_optional
-from app.models.user import User
+from app.schemas.questionnaire import QuestionnaireData, QuestionnaireResponse, TranslatedQuestionnaireData
+from app.services.translation_service import translation_service
 
 router = APIRouter()
 
@@ -17,10 +15,9 @@ temporary_questionnaires = {}
 @router.post("/", response_model=QuestionnaireResponse)
 async def submit_questionnaire(
     request: Request,
-    # current_user: Optional[User] = Depends(get_current_user_optional)  # Временно отключаем
 ):
-    """Отправка анкеты без аутентификации"""
-    print("=== QUESTIONNAIRE SUBMISSION (NO AUTH) ===")
+    """Отправка анкеты с автоматическим переводом для нейросети"""
+    print("=== QUESTIONNAIRE SUBMISSION WITH TRANSLATION ===")
     
     try:
         body_bytes = await request.body()
@@ -55,7 +52,7 @@ async def submit_questionnaire(
                 detail=f"Ошибка валидации данных: {', '.join(error_details)}"
             )
         
-        # Дополнительная проверка на пустые строки
+        # Проверка на пустые строки
         if not questionnaire_data.setting.strip():
             raise HTTPException(
                 status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
@@ -74,29 +71,48 @@ async def submit_questionnaire(
                 detail="Поле 'pose' не может быть пустым"
             )
 
-        # Генерируем session_id для неавторизованных пользователей
+        # Шаг 1: Анализ анкеты (определение стиля, настроения и т.д.)
+        analysis = await _analyze_questionnaire(questionnaire_data)
+        
+        # Шаг 2: Перевод данных анкеты на английский
+        print("🔄 Перевод данных анкеты на английский...")
+        data_for_translation = questionnaire_data.dict()
+        data_for_translation['style_parameters'] = analysis
+        
+        translated_data = await translation_service.translate_questionnaire_data(data_for_translation)
+        
+        # Шаг 3: Генерация промпта для нейросети на английском
+        ai_prompt = translation_service.generate_ai_prompt(translated_data)
+        print(f"🤖 Сгенерирован промпт для нейросети: {ai_prompt}")
+        
+        # Шаг 4: Сохранение анкеты
         session_id = request.cookies.get("session_id")
         if not session_id:
             session_id = f"anon_{uuid.uuid4().hex}"
 
-        # Анализируем анкету
-        analysis = await _analyze_questionnaire(questionnaire_data)
-        
-        # Сохраняем во временное хранилище
         questionnaire_id = len(temporary_questionnaires) + 1
         questionnaire_record = {
             "id": questionnaire_id,
             "session_id": session_id,
-            "user_id": None,  # current_user.id if current_user else None - временно None
+            "user_id": None,
+            # Оригинальные данные
             "setting": questionnaire_data.setting,
             "clothing": questionnaire_data.clothing,
             "pose": questionnaire_data.pose,
             "additional_notes": questionnaire_data.additional_notes,
+            # Переведенные данные
+            "setting_en": translated_data.get('setting_en'),
+            "clothing_en": translated_data.get('clothing_en'),
+            "pose_en": translated_data.get('pose_en'),
+            "additional_notes_en": translated_data.get('additional_notes_en'),
+            # Анализ стиля
             "mood": analysis["mood"],
             "style_preferences": analysis["style_preferences"],
             "color_palette": analysis["color_palette"],
             "complexity_level": analysis["complexity_level"],
             "artistic_style": analysis["artistic_style"],
+            # Промпт для нейросети
+            "ai_prompt": ai_prompt,
             "created_at": datetime.utcnow(),
             "expires_at": datetime.utcnow() + timedelta(days=30)
         }
@@ -107,13 +123,14 @@ async def submit_questionnaire(
         
         return QuestionnaireResponse(
             success=True,
-            message="Анкета успешно сохранена",
+            message="Анкета успешно сохранена и переведена",
             questionnaire_id=questionnaire_id,
             recommendations={
                 "estimated_complexity": analysis["complexity_level"],
                 "suggested_styles": analysis["style_preferences"],
                 "color_scheme": analysis["color_palette"]
-            }
+            },
+            translated_prompt=ai_prompt  # Возвращаем промпт в ответе
         )
         
     except HTTPException:
@@ -127,23 +144,14 @@ async def submit_questionnaire(
             detail="Внутренняя ошибка сервера"
         )
 
-# Остальные вспомогательные функции остаются без изменений
+# Вспомогательные функции анализа (оставляем без изменений)
 async def _analyze_questionnaire(data: QuestionnaireData) -> dict:
     """Анализ анкеты для подготовки данных для нейросети"""
     
-    # Анализ настроения
     mood = await _detect_mood(data)
-    
-    # Определение стилевых предпочтений
     style_preferences = await _extract_style_preferences(data)
-    
-    # Подбор цветовой палитры
     color_palette = await _generate_color_palette(data)
-    
-    # Определение уровня сложности
     complexity_level = await _calculate_complexity(data)
-    
-    # Определение художественного стиля
     artistic_style = await _determine_artistic_style(data)
     
     return {
@@ -248,7 +256,6 @@ async def _determine_artistic_style(data: QuestionnaireData) -> str:
 async def get_questionnaire(
     questionnaire_id: int,
     request: Request,
-    # current_user: Optional[User] = Depends(get_current_user_optional)  # Временно отключаем
 ):
     """Получение анкеты по ID"""
     questionnaire = temporary_questionnaires.get(questionnaire_id)
@@ -265,9 +272,8 @@ async def get_questionnaire(
 async def get_ai_prompt(
     questionnaire_id: int,
     request: Request,
-    # current_user: Optional[User] = Depends(get_current_user_optional)  # Временно отключаем
 ):
-    """Получение данных анкеты в формате для нейросети"""
+    """Получение данных анкеты в формате для нейросети (на английском)"""
     questionnaire = temporary_questionnaires.get(questionnaire_id)
     
     if not questionnaire:
@@ -276,19 +282,10 @@ async def get_ai_prompt(
             detail="Анкета не найдена"
         )
     
-    ai_data = await _prepare_for_ai_generation(questionnaire)
-    
-    return ai_data
-
-async def _prepare_for_ai_generation(questionnaire: dict) -> dict:
-    """Подготовка данных анкеты для передачи в нейросети"""
+    # Возвращаем готовый промпт для нейросети
     return {
-        "prompt_data": {
-            "setting": questionnaire["setting"],
-            "clothing": questionnaire["clothing"],
-            "pose": questionnaire["pose"],
-            "additional_notes": questionnaire["additional_notes"]
-        },
+        "questionnaire_id": questionnaire_id,
+        "ai_prompt": questionnaire.get("ai_prompt", "Prompt not available"),
         "style_parameters": {
             "mood": questionnaire["mood"],
             "artistic_style": questionnaire["artistic_style"],
@@ -296,58 +293,16 @@ async def _prepare_for_ai_generation(questionnaire: dict) -> dict:
             "color_palette": questionnaire["color_palette"],
             "complexity_level": questionnaire["complexity_level"]
         },
-        "generation_instructions": await _generate_ai_prompt(questionnaire)
-    }
-
-async def _generate_ai_prompt(questionnaire: dict) -> str:
-    """Генерация промпта для нейросети"""
-    prompt_parts = [
-        f"Человек в обстановке: {questionnaire['setting']}",
-        f"Одет в: {questionnaire['clothing']}",
-        f"Поза: {questionnaire['pose']}"
-    ]
-    
-    if questionnaire['additional_notes']:
-        prompt_parts.append(f"Дополнительные пожелания: {questionnaire['additional_notes']}")
-    
-    prompt_parts.append(f"Художественный стиль: {questionnaire['artistic_style']}")
-    prompt_parts.append(f"Настроение: {questionnaire['mood']}")
-    
-    return ". ".join(prompt_parts)
-
-@router.post("/debug")
-async def debug_questionnaire(
-    request: Request
-):
-    """Диагностический эндпоинт для отладки"""
-    print("=== DEBUG ENDPOINT ===")
-    
-    # Логируем всё
-    print(f"Method: {request.method}")
-    print(f"URL: {request.url}")
-    print(f"Headers: {dict(request.headers)}")
-    
-    # Тело запроса
-    body = await request.body()
-    print(f"Raw body: {body}")
-    
-    # Пытаемся распарсить разными способами
-    content_type = request.headers.get("content-type", "")
-    
-    try:
-        if "application/json" in content_type:
-            data = await request.json()
-            print(f"JSON data: {data}")
-        else:
-            data = {"raw_body": body.decode('utf-8')}
-            print(f"Non-JSON data: {data}")
-    except Exception as e:
-        print(f"Parse error: {e}")
-        data = {"error": str(e)}
-    
-    return {
-        "status": "debug",
-        "received_headers": dict(request.headers),
-        "received_data": data,
-        "content_type": content_type
+        "translated_data": {
+            "setting": questionnaire.get("setting_en", questionnaire["setting"]),
+            "clothing": questionnaire.get("clothing_en", questionnaire["clothing"]),
+            "pose": questionnaire.get("pose_en", questionnaire["pose"]),
+            "additional_notes": questionnaire.get("additional_notes_en", questionnaire["additional_notes"])
+        },
+        "original_data": {
+            "setting": questionnaire["setting"],
+            "clothing": questionnaire["clothing"],
+            "pose": questionnaire["pose"],
+            "additional_notes": questionnaire["additional_notes"]
+        }
     }

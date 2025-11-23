@@ -28,3 +28,15 @@ class QuestionnaireAnalysis(BaseModel):
     color_palette: list
     complexity_level: int
     artistic_style: str
+
+class TranslatedQuestionnaireData(BaseModel):
+    """Данные анкеты с переведенными полями"""
+    setting: str
+    clothing: str
+    pose: str
+    additional_notes: Optional[str] = None
+    setting_en: Optional[str] = None
+    clothing_en: Optional[str] = None
+    pose_en: Optional[str] = None
+    additional_notes_en: Optional[str] = None
+    style_parameters: Optional[Dict[str, Any]] = None
