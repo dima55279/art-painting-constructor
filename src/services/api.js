@@ -4,6 +4,7 @@ export const api = createApi({
   reducerPath: 'api',
   baseQuery: fetchBaseQuery({
     baseUrl: 'http://localhost:8000/api',
+    credentials: 'include',
     prepareHeaders: (headers, { getState }) => {
       const token = getState().auth.token
       if (token) {
@@ -82,7 +83,6 @@ export const api = createApi({
       invalidatesTags: ['Photo'],
     }),
 
-
     getFrames: builder.query({
       query: (params = {}) => {
         const { skip = 0, limit = 100, frame_type, is_premium } = params;
@@ -147,10 +147,14 @@ export const api = createApi({
       }),
       invalidatesTags: ['GeneratedImage'],
     }),
+
+    // Получение сгенерированного изображения
     getGeneratedImage: builder.query({
       query: (generationId) => `/generate/${generationId}`,
       providesTags: ['GeneratedImage'],
     }),
+
+    // Получение статуса генерации
     getGenerationStatus: builder.query({
       query: (generationId) => `/generate/${generationId}/status`,
       providesTags: ['GeneratedImage'],

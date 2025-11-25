@@ -5,6 +5,9 @@ const initialState = {
     setting: '',
     clothing: '',
     pose: '',
+    additional_notes: '',
+    translated_prompt: '', // Добавляем поле для переведенного промпта
+    questionnaire_id: null, // Добавляем поле для ID анкеты
   },
 }
 
@@ -14,22 +17,26 @@ export const questionnaireSlice = createSlice({
   reducers: {
     setAnswer: (state, action) => {
       const { field, value } = action.payload
-      // Убедимся, что поле существует в состоянии
-      if (state.answers.hasOwnProperty(field)) {
-        state.answers[field] = value
-      } else {
-        console.warn(`Попытка установить несуществующее поле: ${field}`)
-      }
+      // Разрешаем установку любых полей в answers
+      state.answers[field] = value
     },
     clearAnswers: (state) => {
       state.answers = {
         setting: '',
         clothing: '',
         pose: '',
+        additional_notes: '',
+        translated_prompt: '',
+        questionnaire_id: null,
       }
+    },
+    // Добавляем специальный reducer для установки переведенного промпта
+    setTranslatedPrompt: (state, action) => {
+      state.answers.translated_prompt = action.payload.prompt
+      state.answers.questionnaire_id = action.payload.questionnaire_id
     },
   },
 })
 
-export const { setAnswer, clearAnswers } = questionnaireSlice.actions
+export const { setAnswer, clearAnswers, setTranslatedPrompt } = questionnaireSlice.actions
 export default questionnaireSlice.reducer

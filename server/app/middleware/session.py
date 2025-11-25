@@ -1,15 +1,18 @@
 import uuid
 from fastapi import Request
 from starlette.middleware.base import BaseHTTPMiddleware
-from starlette.responses import Response
 
 class SessionMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
+        # Проверяем или устанавливаем session_id
+        session_id = request.cookies.get("session_id")
+        if not session_id:
+            session_id = f"anon_{uuid.uuid4().hex}"
+        
         response = await call_next(request)
         
-        # Устанавливаем session_id для неавторизованных пользователей
+        # Устанавливаем cookie, если ее не было
         if not request.cookies.get("session_id"):
-            session_id = f"anon_{uuid.uuid4().hex}"
             response.set_cookie(
                 key="session_id",
                 value=session_id,

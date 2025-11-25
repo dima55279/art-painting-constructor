@@ -6,7 +6,8 @@ import styles from './PhotoUpload.module.css'
 
 const PhotoUpload = () => {
   const { isDark } = useSelector((state) => state.theme)
-  const { isAuthenticated } = useSelector((state) => state.auth)
+  const { isAuthenticated, currentUser } = useSelector((state) => state.auth) // Добавлено currentUser
+  const { uploadedPhoto } = useSelector((state) => state.photo) // Добавлено для отображения текущего фото
   const dispatch = useDispatch()
   const [uploadPhoto, { isLoading }] = useUploadPhotoMutation()
   const fileInputRef = useRef(null)
@@ -18,6 +19,12 @@ const PhotoUpload = () => {
     if (file) {
       if (!file.type.match('image.*')) {
         alert('Пожалуйста, выберите файл изображения (JPEG, PNG, etc.)')
+        return
+      }
+      
+      // Проверка размера файла (например, максимум 10MB)
+      if (file.size > 10 * 1024 * 1024) {
+        alert('Файл слишком большой. Максимальный размер: 10MB')
         return
       }
       
@@ -47,6 +54,8 @@ const PhotoUpload = () => {
       formData.append('file', selectedFile)
       
       console.log('Uploading photo...')
+      console.log('🔐 Статус авторизации:', isAuthenticated)
+      console.log('👤 Текущий пользователь:', currentUser)
       
       const result = await uploadPhoto(formData).unwrap()
       
@@ -76,6 +85,12 @@ const PhotoUpload = () => {
     if (fileInputRef.current) {
       fileInputRef.current.value = ''
     }
+  }
+
+  // Добавлено: функция для удаления загруженного фото
+  const handleRemovePhoto = () => {
+    dispatch(setUploadedPhoto(null))
+    alert('Фото удалено из системы')
   }
 
   const themeClass = isDark ? styles.dark : styles.light
@@ -127,7 +142,7 @@ const PhotoUpload = () => {
           className={styles.uploadBtn}
           disabled={!selectedFile || isLoading}
         >
-          {isLoading ? 'Проверка...' : 'Загрузить фото'}
+          {isLoading ? 'Проверка...' : (uploadedPhoto ? 'Заменить фото' : 'Загрузить фото')}
         </button>
       </div>
       
@@ -137,6 +152,7 @@ const PhotoUpload = () => {
             <p>💡 <strong>Совет:</strong> Для сохранения фото в профиле и доступа к истории загрузок, рекомендуем зарегистрироваться.</p>
           </div>
         )}
+        
       </div>
     </div>
   )

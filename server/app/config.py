@@ -27,6 +27,13 @@ class Settings(BaseSettings):
     AI_API_KEY: Optional[str] = os.getenv("AI_API_KEY")
 
     CORS_ORIGINS: str = os.getenv("CORS_ORIGINS", "http://localhost:3000,http://127.0.0.1:3000")
+
+    SD_API_URL: str = os.getenv("SD_API_URL", "http://127.0.0.1:7860")
+    SD_API_TIMEOUT: int = int(os.getenv("SD_API_TIMEOUT", "1200"))
+    
+    # Generation settings
+    MAX_ANONYMOUS_GENERATIONS: int = int(os.getenv("MAX_ANONYMOUS_GENERATIONS", "3"))
+    GENERATION_TIMEOUT: int = int(os.getenv("GENERATION_TIMEOUT", "1200"))
     
     class Config:
         env_file = ".env"

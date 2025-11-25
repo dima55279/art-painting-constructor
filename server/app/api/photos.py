@@ -1,11 +1,12 @@
 import os
 import shutil
-from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File, BackgroundTasks
+import uuid
+from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File, BackgroundTasks, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
 from app.database import get_db
-from app.dependencies import get_current_user_optional, get_current_active_user  # Добавлен импорт get_current_active_user
+from app.dependencies import get_current_user_optional, get_current_active_user  # Добавляем импорт
 from app.models.user import User
 from app.models.photo import Photo
 from app.schemas.photo import PhotoResponse, PhotoUpload, FaceDetectionResult
@@ -18,14 +19,13 @@ router = APIRouter()
 @router.post("/upload", response_model=PhotoResponse, status_code=status.HTTP_201_CREATED)
 async def upload_photo(
     background_tasks: BackgroundTasks,
+    request: Request,
     file: UploadFile = File(...),
-    current_user: User = Depends(get_current_user_optional),  # Опциональная аутентификация
+    current_user: User = Depends(get_current_user_optional),
     db: AsyncSession = Depends(get_db)
 ):
-    """
-    Загрузка фотографии пользователя с проверкой наличия лица
-    Доступно для неавторизованных пользователей
-    """
+    print(f"👤 Upload photo - User: {current_user.id if current_user else 'anonymous'}")
+    
     if not file.content_type.startswith('image/'):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -40,18 +40,29 @@ async def upload_photo(
             detail=f"Размер файла не должен превышать {settings.MAX_FILE_SIZE // 1024 // 1024}MB"
         )
     
-    await file.seek(0)  # Сбрасываем позицию чтения
-    
     photo_service = PhotoService(db)
     face_service = FaceDetectionService()
     
+    # Определяем session_id или user_id
+    session_id = None
+    user_id = None
+    
+    if current_user:
+        user_id = current_user.id
+        print(f"✅ Авторизованный пользователь: {user_id}")
+    else:
+        session_id = request.cookies.get("session_id")
+        if not session_id:
+            session_id = f"anon_{uuid.uuid4().hex}"
+        print(f"👤 Анонимный пользователь, session_id: {session_id}")
+
     try:
         # Сохраняем файл временно для проверки
         temp_dir = "temp_uploads"
         os.makedirs(temp_dir, exist_ok=True)
         
-        user_id = current_user.id if current_user else None
-        temp_path = os.path.join(temp_dir, f"temp_{user_id or 'anonymous'}_{file.filename}")
+        temp_filename = f"temp_{uuid.uuid4().hex}_{file.filename}"
+        temp_path = os.path.join(temp_dir, temp_filename)
         
         with open(temp_path, "wb") as buffer:
             buffer.write(file_content)
@@ -59,28 +70,31 @@ async def upload_photo(
         # Проверяем наличие лица
         face_detected = await face_service.detect_faces(temp_path)
         
-        if not face_detected:
-            # Удаляем временный файл
+        # Удаляем временный файл после проверки
+        try:
             os.remove(temp_path)
+        except OSError:
+            pass
+        
+        if not face_detected:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="На фотографии не обнаружено лицо. Пожалуйста, загрузите фото с четко видимым лицом."
             )
         
         # Если лицо обнаружено, загружаем фото
-        photo = await photo_service.upload_photo(
-            user_id=user_id,  # Может быть None для неавторизованных
-            file=file,
-            file_content=file_content,
-            photo_data=PhotoUpload()  # Пустые данные, так как у нас нет формы
-        )
-        
-        # Запускаем анализ качества в фоне только для авторизованных пользователей
         if current_user:
-            background_tasks.add_task(
-                analyze_face_quality_after_upload,
-                photo.id,
-                db
+            photo = await photo_service.upload_photo(
+                user_id=user_id,
+                file=file,
+                file_content=file_content,
+                photo_data=PhotoUpload()
+            )
+        else:
+            photo = await photo_service.upload_photo_for_anonymous(
+                file=file,
+                file_content=file_content,
+                session_id=session_id
             )
         
         return PhotoResponse.from_orm(photo)
@@ -89,10 +103,11 @@ async def upload_photo(
         raise
     except Exception as e:
         # Очищаем временные файлы в случае ошибки
-        user_id = current_user.id if current_user else None
-        temp_path = os.path.join("temp_uploads", f"temp_{user_id or 'anonymous'}_{file.filename}")
-        if os.path.exists(temp_path):
-            os.remove(temp_path)
+        if 'temp_path' in locals() and os.path.exists(temp_path):
+            try:
+                os.remove(temp_path)
+            except OSError:
+                pass
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Ошибка при обработке фотографии: {str(e)}"
@@ -112,7 +127,7 @@ async def analyze_face_quality_after_upload(photo_id: int, db: AsyncSession):
 async def get_user_photos(
     skip: int = 0,
     limit: int = 20,
-    current_user: User = Depends(get_current_active_user),  # Только для авторизованных
+    current_user: User = Depends(get_current_active_user),  # Теперь импорт определен
     db: AsyncSession = Depends(get_db)
 ):
     """
@@ -126,7 +141,7 @@ async def get_user_photos(
 @router.get("/{photo_id}", response_model=PhotoResponse)
 async def get_photo(
     photo_id: int,
-    current_user: User = Depends(get_current_active_user),  # Только для авторизованных
+    current_user: User = Depends(get_current_active_user),  # Теперь импорт определен
     db: AsyncSession = Depends(get_db)
 ):
     """
@@ -147,7 +162,7 @@ async def get_photo(
 @router.delete("/{photo_id}")
 async def delete_photo(
     photo_id: int,
-    current_user: User = Depends(get_current_active_user),  # Только для авторизованных
+    current_user: User = Depends(get_current_active_user),  # Теперь импорт определен
     db: AsyncSession = Depends(get_db)
 ):
     """
@@ -168,7 +183,7 @@ async def delete_photo(
 @router.post("/{photo_id}/analyze-face", response_model=FaceDetectionResult)
 async def analyze_face(
     photo_id: int,
-    current_user: User = Depends(get_current_active_user),  # Только для авторизованных
+    current_user: User = Depends(get_current_active_user),  # Теперь импорт определен
     db: AsyncSession = Depends(get_db)
 ):
     """
@@ -191,7 +206,7 @@ async def analyze_face(
 @router.get("/{photo_id}/download")
 async def download_photo(
     photo_id: int,
-    current_user: User = Depends(get_current_active_user),  # Только для авторизованных
+    current_user: User = Depends(get_current_active_user),  # Теперь импорт определен
     db: AsyncSession = Depends(get_db)
 ):
     """

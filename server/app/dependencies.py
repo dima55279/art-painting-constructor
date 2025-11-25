@@ -10,7 +10,7 @@ from app.database import get_db
 from app.models.user import User
 from app.schemas.user import UserResponse
 
-security = HTTPBearer()
+security = HTTPBearer(auto_error=False)
 
 async def get_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(security),
@@ -55,31 +55,24 @@ async def get_current_active_user(
     return current_user
 
 async def get_current_user_optional(
-    credentials: Optional[HTTPAuthorizationCredentials] = None,
+    credentials: Optional[HTTPAuthorizationCredentials] = Depends(security),
     db: AsyncSession = Depends(get_db)
 ) -> Optional[User]:
-    """
-    Опциональная dependency для получения пользователя.
-    Возвращает None если токен отсутствует или невалидный.
-    """
-    if credentials is None:
+    if not credentials:
         return None
     
     try:
-        payload = jwt.decode(
-            credentials.credentials, 
-            settings.SECRET_KEY, 
-            algorithms=[settings.ALGORITHM]
-        )
-        user_id: str = payload.get("sub")
+        # Декодируем токен из заголовка Authorization
+        payload = jwt.decode(credentials.credentials, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
+        user_id: int = payload.get("sub")
         if user_id is None:
             return None
-        
-        result = await db.execute(select(User).where(User.id == int(user_id)))
-        user = result.scalar_one_or_none()
-        return user
-    except JWTError:
+    except jwt.JWTError:
         return None
+    
+    user_service = UserService(db)
+    user = await user_service.get_user_by_id(user_id)
+    return user
 
 def get_admin_user(current_user: User = Depends(get_current_user)) -> User:
     """

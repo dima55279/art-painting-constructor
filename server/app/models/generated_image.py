@@ -8,11 +8,12 @@ class GeneratedImage(Base):
 
     id = Column(Integer, primary_key=True, index=True)
 
-    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=True)
     original_photo_id = Column(Integer, ForeignKey("photos.id", ondelete="CASCADE"), nullable=False)
     frame_id = Column(Integer, ForeignKey("frames.id", ondelete="CASCADE"), nullable=False)
 
-    generated_image_url = Column(String(500), nullable=False)
+    # ИЗМЕНИТЕ: nullable=False → nullable=True для полей, которые заполняются после генерации
+    generated_image_url = Column(String(500), nullable=True)  # ← ИЗМЕНИТЬ
     numbered_image_url = Column(String(500), nullable=True) 
     preview_image_url = Column(String(500), nullable=True)   
 

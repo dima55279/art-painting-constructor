@@ -16,6 +16,7 @@ from app.api import (
     questionnaire_router,
     questionnaire_public_router
 )
+from app.middleware.session import SessionMiddleware
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -42,14 +43,16 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-# Настройка CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],  # Адрес вашего фронтенда
+    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000", "http://localhost:8000"],
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
     allow_headers=["*"],
+    expose_headers=["*"]
 )
+
+app.add_middleware(SessionMiddleware)
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
 

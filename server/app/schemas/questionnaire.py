@@ -6,7 +6,7 @@ class QuestionnaireData(BaseModel):
     setting: str
     clothing: str
     pose: str
-    additional_notes: Optional[str] = None
+    additional_notes: Optional[str] = ""
     
     @validator('setting', 'clothing', 'pose')
     def validate_not_empty(cls, v):
@@ -20,6 +20,10 @@ class QuestionnaireResponse(BaseModel):
     message: str
     questionnaire_id: Optional[int] = None
     recommendations: Optional[Dict[str, Any]] = None
+    translated_prompt: Optional[str] = None  # Убедитесь, что это поле есть
+
+    class Config:
+        from_attributes = True
 
 class QuestionnaireAnalysis(BaseModel):
     """Анализ анкеты для нейросети"""

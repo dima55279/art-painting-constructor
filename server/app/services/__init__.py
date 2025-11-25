@@ -8,6 +8,9 @@ from app.services.frame_service import FrameService
 from app.services.generation_service import GenerationService
 from app.services.order_service import OrderService
 from app.services.subscription_service import SubscriptionService
+from app.services.questionnaire_service import QuestionnaireService
+from app.services.translation_service import translation_service
+from app.services.stable_diffusion_service import stable_diffusion_service
 
 __all__ = [
     "AuthService",
@@ -17,5 +20,8 @@ __all__ = [
     "FrameService",
     "GenerationService",
     "OrderService",
-    "SubscriptionService"
+    "SubscriptionService",
+    "QuestionnaireService",
+    "translation_service",
+    "stable_diffusion_service"
 ]

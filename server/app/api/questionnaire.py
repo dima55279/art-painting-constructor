@@ -121,7 +121,8 @@ async def submit_questionnaire(
 
         print(f"✅ Анкета успешно сохранена с ID: {questionnaire_id}")
         
-        return QuestionnaireResponse(
+        # Убедимся, что возвращаем translated_prompt
+        response_data = QuestionnaireResponse(
             success=True,
             message="Анкета успешно сохранена и переведена",
             questionnaire_id=questionnaire_id,
@@ -130,8 +131,12 @@ async def submit_questionnaire(
                 "suggested_styles": analysis["style_preferences"],
                 "color_scheme": analysis["color_palette"]
             },
-            translated_prompt=ai_prompt  # Возвращаем промпт в ответе
+            translated_prompt=ai_prompt  # Это должно быть здесь!
         )
+        
+        print(f"📤 Отправляем ответ с translated_prompt: {ai_prompt}")
+        
+        return response_data
         
     except HTTPException:
         raise

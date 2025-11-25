@@ -1,6 +1,6 @@
-import React from 'react'
+import React, { useEffect } from 'react' // Добавляем useEffect
 import { useSelector, useDispatch } from 'react-redux'
-import { setAnswer } from '../../store/slices/questionnaireSlice'
+import { setAnswer, setTranslatedPrompt } from '../../store/slices/questionnaireSlice'
 import { useSubmitQuestionnaireMutation } from '../../services/api'
 import styles from './Questionnaire.module.css'
 
@@ -10,6 +10,11 @@ const Questionnaire = () => {
   const { isDark } = useSelector((state) => state.theme)
 
   const [submitQuestionnaire, { isLoading }] = useSubmitQuestionnaireMutation()
+
+  // Добавляем useEffect для отслеживания изменений answers
+  useEffect(() => {
+    console.log('🔄 Answers обновились:', answers)
+  }, [answers])
 
   const handleInputChange = (field, value) => {
     dispatch(setAnswer({ field, value }))
@@ -38,7 +43,6 @@ const Questionnaire = () => {
     
     console.log('Отправка анкеты:', answers)
     
-    // Валидация на фронтенде
     const errors = validateForm()
     if (errors.length > 0) {
       alert(`Пожалуйста, заполните все поля:\n${errors.join('\n')}`)
@@ -46,8 +50,28 @@ const Questionnaire = () => {
     }
     
     try {
-      const result = await submitQuestionnaire(answers).unwrap()
-      console.log('Успешный ответ:', result)
+      const result = await submitQuestionnaire({
+        setting: answers.setting,
+        clothing: answers.clothing,
+        pose: answers.pose,
+        additional_notes: answers.additional_notes || ''
+      }).unwrap()
+      
+      console.log('Полный ответ от сервера:', JSON.stringify(result, null, 2))
+      console.log('Есть ли translated_prompt в ответе?', 'translated_prompt' in result)
+      console.log('Значение translated_prompt:', result.translated_prompt)
+      
+      // Сохраняем переведенный промпт и ID анкеты в Redux
+      if (result.translated_prompt) {
+        dispatch(setTranslatedPrompt({
+          prompt: result.translated_prompt,
+          questionnaire_id: result.questionnaire_id
+        }))
+        console.log('✅ Переведенный промпт сохранен в Redux')
+      } else {
+        console.log('❌ В ответе нет translated_prompt')
+      }
+      
       alert(`Анкета отправлена! ID: ${result.questionnaire_id}`)
     } catch (error) {
       console.error('Ошибка отправки анкеты:', error)
@@ -81,7 +105,7 @@ const Questionnaire = () => {
     <div className={`${styles.questionnaire} ${themeClass}`}>
       <h2 className={`${styles.sectionTitle} ${styles.themeText}`}>Анкета</h2>
       <hr className={styles.line} />
-      
+          
       <form onSubmit={handleSubmit} className={styles.questionnaireForm}>
         <div className={`${styles.question} ${themeClass}`}>
           <label className={styles.themeText}>В каком сеттинге будет изображен человек?</label>
@@ -122,6 +146,18 @@ const Questionnaire = () => {
           />
         </div>
         
+        <div className={`${styles.question} ${themeClass}`}>
+          <label className={styles.themeText}>Дополнительные заметки (необязательно)</label>
+          <input
+            type="text"
+            className={`${styles.textInput} ${themeClass}`}
+            placeholder="Любые дополнительные пожелания..."
+            value={answers.additional_notes || ''}
+            onChange={(e) => handleInputChange('additional_notes', e.target.value)}
+            disabled={isLoading}
+          />
+        </div>
+        
         <button 
           type="submit" 
           className={styles.submitBtn}
@@ -130,6 +166,7 @@ const Questionnaire = () => {
           {isLoading ? 'Отправка...' : 'Отправить анкету'}
         </button>
       </form>
+
     </div>
   )
 }

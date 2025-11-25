@@ -3,7 +3,7 @@ import uuid
 from datetime import datetime
 from typing import Optional, List, Dict, Any
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func
+from sqlalchemy import select, func, text
 from fastapi import UploadFile, HTTPException
 
 from app.models.photo import Photo
@@ -51,9 +51,9 @@ class PhotoService:
 
         return photo
 
-    async def get_photo(self, photo_id: int, user_id: Optional[int] = None) -> Optional[Photo]:
-        """Получение фотографии по ID с проверкой владельца (если user_id указан)"""
-        if user_id is not None:
+    async def get_photo(self, photo_id: int, user_id: Optional[int], session_id: Optional[str]):
+        if user_id:
+            # Для авторизованных пользователей ищем по user_id
             result = await self.db.execute(
                 select(Photo).where(
                     Photo.id == photo_id,
@@ -61,8 +61,13 @@ class PhotoService:
                 )
             )
         else:
+            # Для анонимных пользователей ищем по session_id в metadata
             result = await self.db.execute(
-                select(Photo).where(Photo.id == photo_id)
+                select(Photo).where(
+                    Photo.id == photo_id,
+                    Photo.user_id.is_(None),
+                    Photo.image_metadata["session_id"].as_string() == session_id
+                )
             )
         return result.scalar_one_or_none()
 
@@ -182,3 +187,72 @@ class PhotoService:
             "approved_photos": approved_photos,
             "approval_rate": approved_photos / total_photos if total_photos > 0 else 0
         }
+
+    async def upload_photo_for_anonymous(
+        self,
+        file: UploadFile,
+        file_content: bytes,
+        session_id: str
+    ) -> Photo:
+        """Загрузка фото для неавторизованного пользователя"""
+        file_extension = os.path.splitext(file.filename)[1]
+        stored_filename = f"anon_{session_id}_{uuid.uuid4().hex}{file_extension}"
+        file_path = os.path.join(settings.UPLOAD_DIR, stored_filename)
+
+        os.makedirs(settings.UPLOAD_DIR, exist_ok=True)
+
+        with open(file_path, "wb") as buffer:
+            buffer.write(file_content)
+
+        photo = Photo(
+            user_id=None,
+            original_filename=file.filename,
+            stored_filename=filename,
+            file_path=file_path,
+            file_size=len(file_content),
+            mime_type=file.content_type,
+            image_metadata={"session_id": session_id},  # Сохраняем session_id
+            face_detected=True,  # Мы уже проверили наличие лица
+            is_approved=True
+        )
+
+        self.db.add(photo)
+        await self.db.commit()
+        await self.db.refresh(photo)
+
+        return photo    
+
+    async def upload_photo_for_anonymous(
+        self,
+        file: UploadFile,
+        file_content: bytes,
+        session_id: str
+    ) -> Photo:
+        """Загрузка фото для неавторизованного пользователя"""
+        file_extension = os.path.splitext(file.filename)[1]
+        stored_filename = f"anon_{session_id}_{uuid.uuid4().hex}{file_extension}"
+        file_path = os.path.join(settings.UPLOAD_DIR, stored_filename)
+
+        os.makedirs(settings.UPLOAD_DIR, exist_ok=True)
+
+        with open(file_path, "wb") as buffer:
+            buffer.write(file_content)
+
+        photo = Photo(
+            user_id=None,  # Неавторизованный пользователь
+            original_filename=file.filename,
+            stored_filename=stored_filename,
+            file_path=file_path,
+            file_size=len(file_content),
+            mime_type=file.content_type,
+            uploaded_at=datetime.utcnow(),
+            face_detected=True,  # Уже проверили
+            is_approved=True,
+            image_metadata={"session_id": session_id}  # Сохраняем session_id
+        )
+
+        self.db.add(photo)
+        await self.db.commit()
+        await self.db.refresh(photo)
+
+        return photo
