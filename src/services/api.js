@@ -151,9 +151,10 @@ export const api = createApi({
     // Получение сгенерированного изображения
     getGeneratedImage: builder.query({
       query: (generationId) => `/generate/${generationId}`,
-      providesTags: ['GeneratedImage'],
+      providesTags: (result, error, id) => [{ type: 'GeneratedImage', id }],
+      // Добавьте опцию для уменьшения кэширования при необходимости
+      keepUnusedDataFor: 0,
     }),
-
     // Получение статуса генерации
     getGenerationStatus: builder.query({
       query: (generationId) => `/generate/${generationId}/status`,

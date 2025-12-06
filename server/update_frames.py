@@ -80,6 +80,19 @@ async def update_frames():
                 "tags": ["море", "волны", "синий"],
                 "sort_order": 5
             },
+            {
+                "name": "Хогвартс", 
+                "description": "Рамка в стиле факультетов Хогвартса",
+                "frame_type": "harry",
+                "preview_image_url": "/static/frames/harry.png",
+                "model_3d_url": "/static/frames/harry.glb",
+                "price": 0.0,
+                "is_premium": False,
+                "complexity_level": 2,
+                "estimated_time_hours": 2.5,
+                "tags": ["море", "волны", "синий"],
+                "sort_order": 6
+            },
         ]
 
         # Получаем существующие рамки

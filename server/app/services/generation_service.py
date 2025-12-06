@@ -285,6 +285,7 @@ class GenerationService:
             await self.db.commit()
         
     async def process_generation_with_sd(self, generation_id: int) -> None:
+        """Обработка генерации с использованием Stable Diffusion"""
         generation = await self.db.get(GeneratedImage, generation_id)
         if not generation:
             return
@@ -294,22 +295,26 @@ class GenerationService:
             generation.started_at = datetime.utcnow()
             await self.db.commit()
 
-            questionnaire_answers = generation.questionnaire_answers
-            additional_notes = questionnaire_answers.get('additional_notes', '')
+            # Получаем связанные данные
+            photo = await self.db.get(Photo, generation.original_photo_id)
+            frame = await self.db.get(Frame, generation.frame_id)
             
-            if additional_notes:
-                prompt = additional_notes
-                print(f"🎨 Using translated prompt from additional_notes: {prompt}")
-            else:
-                frame = await self.db.get(Frame, generation.frame_id)
-                prompt = await self._generate_ai_prompt(questionnaire_answers, frame)
-                print(f"🎨 Generated prompt: {prompt}")
+            if not photo or not frame:
+                raise ValueError("Не найдено фото или рамка")
 
+            # Генерируем промпт
+            ai_prompt = await self._generate_ai_prompt(
+                generation.questionnaire_answers, 
+                frame,
+                generation.generation_parameters.get('theme', 'light')
+            )
+
+            # Генерируем изображение через Stable Diffusion
             image_bytes = await stable_diffusion_service.generate_image(
-                prompt=prompt,
+                prompt=ai_prompt,
                 negative_prompt="ugly, blurry, low quality, deformed, bad anatomy, poorly drawn",
-                width=512,
-                height=512,
+                width=1024,
+                height=1024,
                 steps=25,
                 cfg_scale=7.5
             )
@@ -317,6 +322,7 @@ class GenerationService:
             if not image_bytes:
                 raise Exception("Не удалось сгенерировать изображение")
 
+            # Сохраняем сгенерированное изображение
             filename = f"generated_{generation_id}_{uuid.uuid4().hex[:8]}.png"
             filepath = os.path.join(settings.GENERATED_IMAGES_DIR, filename)
             
@@ -325,25 +331,42 @@ class GenerationService:
             async with aiofiles.open(filepath, 'wb') as f:
                 await f.write(image_bytes)
 
+            print(f"✅ Saved image to: {filepath}")
+            print(f"✅ File exists: {os.path.exists(filepath)}")
+
+            # ОБЯЗАТЕЛЬНО обновляем все поля перед коммитом
             generation.status = "completed"
             generation.completed_at = datetime.utcnow()
             generation.progress = 100
             generation.generated_image_url = f"/static/generated_images/{filename}"
             generation.preview_image_url = f"/static/generated_images/{filename}"
-
+            
             generation.colors_used = ["#FF5733", "#33FF57", "#3357FF"]
             generation.complexity_score = 7
             generation.generation_time_seconds = (
                 generation.completed_at - generation.started_at
             ).total_seconds()
 
+            print(f"✅ Setting generated_image_url: {generation.generated_image_url}")
+            print(f"✅ Generation object before commit: {generation}")
+
+            # Коммит изменений
             await self.db.commit()
+            
+            # Обновляем объект после коммита
+            await self.db.refresh(generation)
+            
+            print(f"✅ Generation after commit - generated_image_url: {generation.generated_image_url}")
+            print(f"✅ Generation {generation_id} completed successfully")
 
         except Exception as e:
+            print(f"❌ Generation {generation_id} failed: {str(e)}")
+            import traceback
+            traceback.print_exc()
+            
             generation.status = "failed"
             generation.error_message = f"Ошибка генерации: {str(e)}"
             await self.db.commit()
-            print(f"Generation {generation_id} failed: {str(e)}")
 
     async def _get_ai_prompt_from_questionnaire(self, questionnaire_data: Dict[str, Any]) -> str:
         """Получение AI промпта из данных анкеты"""
@@ -502,27 +525,42 @@ class GenerationService:
             async with aiofiles.open(filepath, 'wb') as f:
                 await f.write(image_bytes)
 
-            # Обновляем запись генерации
+            print(f"✅ Saved image to: {filepath}")
+            print(f"✅ File exists: {os.path.exists(filepath)}")
+
+            # ОБЯЗАТЕЛЬНО обновляем все поля перед коммитом
             generation.status = "completed"
             generation.completed_at = datetime.utcnow()
             generation.progress = 100
             generation.generated_image_url = f"/static/generated_images/{filename}"
             generation.preview_image_url = f"/static/generated_images/{filename}"
-
-            # Сохраняем метаданные
-            generation.colors_used = ["#FF5733", "#33FF57", "#3357FF"]  # Пример палитры
+            
+            generation.colors_used = ["#FF5733", "#33FF57", "#3357FF"]
             generation.complexity_score = 7
             generation.generation_time_seconds = (
                 generation.completed_at - generation.started_at
             ).total_seconds()
 
+            print(f"✅ Setting generated_image_url: {generation.generated_image_url}")
+            print(f"✅ Generation object before commit: {generation}")
+
+            # Коммит изменений
             await self.db.commit()
+            
+            # Обновляем объект после коммита
+            await self.db.refresh(generation)
+            
+            print(f"✅ Generation after commit - generated_image_url: {generation.generated_image_url}")
+            print(f"✅ Generation {generation_id} completed successfully")
 
         except Exception as e:
+            print(f"❌ Generation {generation_id} failed: {str(e)}")
+            import traceback
+            traceback.print_exc()
+            
             generation.status = "failed"
             generation.error_message = f"Ошибка генерации: {str(e)}"
             await self.db.commit()
-            print(f"Generation {generation_id} failed: {str(e)}")
 
     async def _generate_ai_prompt(
         self, 

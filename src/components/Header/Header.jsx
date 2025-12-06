@@ -5,8 +5,8 @@ import { clearCredentials } from '../../store/slices/authSlice' // Измене�
 import { useLogoutMutation } from '../../services/api'
 import { Link, useLocation } from 'react-router-dom'
 import styles from './Header.module.css'
-import logoDark from '../../images/header/logoDark.png'
-import logoLight from '../../images/header/logoLight.png'
+import logoDark from '../../images/header/logoTestDark.png'
+import logoLight from '../../images/header/logoTestLight.png'
 
 const Header = () => {
   const dispatch = useDispatch()

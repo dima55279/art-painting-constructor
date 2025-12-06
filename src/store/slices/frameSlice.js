@@ -6,7 +6,8 @@ const frameCameraSettings = {
   'pumpkin': { minDistance: 100, maxDistance: 125, initialPosition: [90, 90, 45] },
   'flowers': { minDistance: 5, maxDistance: 7, initialPosition: [0, 0, 40] },
   'christmas': { minDistance: 3, maxDistance: 5, initialPosition: [0, 0, 55] },
-  'sea': { minDistance: 5, maxDistance: 7, initialPosition: [0, 0, 48] }
+  'sea': { minDistance: 5, maxDistance: 7, initialPosition: [0, 0, 48] },
+  'harry': { minDistance: 7, maxDistance: 10, initialPosition: [0, 0, 48] }
 }
 
 const initialState = {
