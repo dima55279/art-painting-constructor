@@ -1,3 +1,4 @@
+# app/dependencies.py
 from typing import Optional
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
@@ -9,6 +10,7 @@ from app.config import settings
 from app.database import get_db
 from app.models.user import User
 from app.schemas.user import UserResponse
+from app.services.user_service import UserService  # Добавить эту строку
 
 security = HTTPBearer(auto_error=False)
 
@@ -70,6 +72,7 @@ async def get_current_user_optional(
     except jwt.JWTError:
         return None
     
+    # Используем UserService для получения пользователя
     user_service = UserService(db)
     user = await user_service.get_user_by_id(user_id)
     return user

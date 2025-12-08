@@ -150,9 +150,18 @@ export const api = createApi({
 
     // Получение сгенерированного изображения
     getGeneratedImage: builder.query({
-      query: (generationId) => `/generate/${generationId}`,
+      query: (generationId) => ({
+        url: `/generate/${generationId}`,
+        method: 'GET',
+        headers: {
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
+        }
+      }),
       providesTags: (result, error, id) => [{ type: 'GeneratedImage', id }],
-      // Добавьте опцию для уменьшения кэширования при необходимости
+      // Включаем refetch при изменении аргумента
+      refetchOnMountOrArgChange: true,
+      // Не кэшируем данные
       keepUnusedDataFor: 0,
     }),
     // Получение статуса генерации

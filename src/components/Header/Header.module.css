@@ -37,7 +37,7 @@
 
 .headerLogo {
     align-self: flex-start;
-    max-height: 300px;
+    max-height: 150px;
     transition: all 0.3s ease;
 }
 

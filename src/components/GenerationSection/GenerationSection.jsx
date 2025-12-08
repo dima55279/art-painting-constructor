@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { 
   useGenerateImageMutation, 
@@ -12,394 +12,369 @@ const GenerationSection = () => {
   const dispatch = useDispatch()
   const { isDark } = useSelector((state) => state.theme)
   const { uploadedPhoto } = useSelector((state) => state.photo)
-  const { selectedFrame } = useSelector((state) => state.frame)
+  const { selectedFrame, frames } = useSelector((state) => state.frame)
   const { answers } = useSelector((state) => state.questionnaire)
 
+  const selectedFrameData = frames.find(f => f.id === selectedFrame)
+  
   const [generateImage, { isLoading: isGenerating }] = useGenerateImageMutation()
   
-  const [localGenerationId, setLocalGenerationId] = useState(null)
+  const [generationId, setGenerationId] = useState(null)
+  const [currentImageType, setCurrentImageType] = useState('watermarked')
   const [currentImageUrl, setCurrentImageUrl] = useState(null)
   const [isPolling, setIsPolling] = useState(false)
   const [generationError, setGenerationError] = useState(null)
   const [imageLoadError, setImageLoadError] = useState(false)
-  const [retryCount, setRetryCount] = useState(0)
-  const [displayStatus, setDisplayStatus] = useState(null) // Локальный статус для отображения
-  
-  const abortControllerRef = useRef(null)
-  const generationCountRef = useRef(0)
-  const retryTimeoutRef = useRef(null)
+  const [lastImageUpdate, setLastImageUpdate] = useState(0)
+  const [shouldPoll, setShouldPoll] = useState(true)
 
-  // Базовый URL для API
+  // Константы
   const API_BASE_URL = 'http://localhost:8000'
+  
+  // Цены (в рублях)
+  const PRICES = {
+    WATERMARKED_IMAGE: 200,
+    NUMBERED_IMAGE: 1400
+  }
 
-  // Получаем статус генерации
-  const { 
-    data: generationStatus, 
-  } = useGetGenerationStatusQuery(localGenerationId, {
-    skip: !localGenerationId || !isPolling,
-    pollingInterval: 1000,
-  })
+  // Расчет общей стоимости
+  const calculateTotalPrice = () => {
+    const framePrice = selectedFrameData ? selectedFrameData.price: 0
+    const imagePrice = currentImageType === 'watermarked' ? PRICES.WATERMARKED_IMAGE : PRICES.NUMBERED_IMAGE
+    return framePrice + imagePrice
+  }
 
   // Получаем данные сгенерированного изображения
   const { 
     data: generatedImageData, 
-    refetch: refetchImageData,
-  } = useGetGeneratedImageQuery(localGenerationId, {
-    skip: !localGenerationId,
+    isLoading: isLoadingImageData,
+    error: imageDataError,
+    refetch: refetchImageData
+  } = useGetGeneratedImageQuery(generationId, {
+    skip: !generationId,
     refetchOnMountOrArgChange: true,
+    pollingInterval: generationId && shouldPoll ? 2000 : 0,
   })
 
-  // Синхронизируем локальный статус с полученным из API
-  useEffect(() => {
-    if (generationStatus && localGenerationId) {
-      console.log(`📊 Updating display status for generation ${localGenerationId}:`, generationStatus.status)
-      setDisplayStatus(generationStatus)
-    }
-  }, [generationStatus, localGenerationId])
+  // Получаем статус генерации
+  const { 
+    data: generationStatus,
+    isLoading: isLoadingStatus 
+  } = useGetGenerationStatusQuery(generationId, {
+    skip: !generationId,
+  })
 
-  // Очистка при размонтировании
+  // Эффект для управления опросом
   useEffect(() => {
-    return () => {
-      if (abortControllerRef.current) {
-        abortControllerRef.current.abort()
-      }
-      if (retryTimeoutRef.current) {
-        clearTimeout(retryTimeoutRef.current)
+    if (generatedImageData) {
+      if (generatedImageData.status === 'completed' || generatedImageData.status === 'failed') {
+        console.log('🛑 Останавливаем опрос, статус:', generatedImageData.status)
+        setShouldPoll(false)
+      } else {
+        setShouldPoll(true)
       }
     }
-  }, [])
+  }, [generatedImageData])
 
-  // Функция для получения полного URL изображения
-  const getFullImageUrl = useCallback((imagePath) => {
-    if (!imagePath) return null
+  // Основной эффект для обработки данных изображения
+  useEffect(() => {
+    if (!generatedImageData) {
+      console.log('❌ generatedImageData отсутствует')
+      return
+    }
+
+    if (generatedImageData.status === 'completed') {
+      let imageUrl = null
+      
+      if (currentImageType === 'watermarked' && generatedImageData.generated_image_url) {
+        imageUrl = generatedImageData.generated_image_url
+      } else if (currentImageType === 'numbered' && generatedImageData.numbered_image_url) {
+        imageUrl = generatedImageData.numbered_image_url
+      } else if (generatedImageData.generated_image_url) {
+        imageUrl = generatedImageData.generated_image_url
+        setCurrentImageType('watermarked')
+      }
+
+      if (imageUrl) {
+        const fullUrl = getFullImageUrl(imageUrl)
+        
+        if (fullUrl !== currentImageUrl) {
+          console.log('🖼️ Устанавливаем новый URL:', fullUrl)
+          setCurrentImageUrl(fullUrl)
+          setLastImageUpdate(Date.now())
+          setGenerationError(null)
+          
+          dispatch(setGeneratedImage({
+            id: generatedImageData.id,
+            url: fullUrl,
+            status: 'completed',
+            imageType: currentImageType
+          }))
+        }
+      } else {
+        console.log('❌ Нет доступного URL изображения')
+      }
+    } else if (generatedImageData.status === 'failed') {
+      setGenerationError(generatedImageData.error_message || "Ошибка генерации изображения")
+    }
+  }, [generatedImageData, currentImageType, currentImageUrl, dispatch])
+
+  // Функция для получения полного URL
+  const getFullImageUrl = (imagePath) => {
+    if (!imagePath) {
+      console.log('❌ getFullImageUrl: imagePath отсутствует')
+      return null
+    }
     
     if (imagePath.startsWith('http')) {
       return imagePath
     }
     
-    if (imagePath.startsWith('/')) {
+    if (imagePath.startsWith('/static')) {
       return `${API_BASE_URL}${imagePath}`
     }
     
     return `${API_BASE_URL}/static/generated_images/${imagePath}`
-  }, [API_BASE_URL])
+  }
 
-  // Функция для проверки доступности изображения
-  const checkImageAvailability = useCallback(async (imageUrl, generationId) => {
-    if (!imageUrl) return false
-    
-    const fullUrl = getFullImageUrl(imageUrl)
-    console.log(`🔍 Checking image availability for generation ${generationId}: ${fullUrl}`)
-    
-    try {
-      if (abortControllerRef.current) {
-        abortControllerRef.current.abort()
-      }
-      
-      abortControllerRef.current = new AbortController()
-      
-      const response = await fetch(fullUrl, { 
-        method: 'HEAD',
-        signal: abortControllerRef.current.signal 
-      })
-      
-      if (response.ok) {
-        console.log(`✅ Image is available: ${fullUrl}`)
-        return { available: true, url: fullUrl }
-      } else {
-        console.warn(`⚠️ Image not available (status ${response.status}): ${fullUrl}`)
-        return { available: false, url: fullUrl }
-      }
-    } catch (error) {
-      if (error.name !== 'AbortError') {
-        console.error(`❌ Error checking image: ${error}`)
-      }
-      return { available: false, url: fullUrl }
-    }
-  }, [getFullImageUrl])
-
-  // Основная функция для установки изображения
-  const setImageFromData = useCallback(async (imageData, generationId) => {
-    if (!imageData || !generationId) return false
-    
-    console.log(`🖼️ Processing image data for generation ${generationId}:`, {
-      status: imageData.status,
-      hasUrl: !!imageData.generated_image_url,
-      url: imageData.generated_image_url
-    })
-    
-    // Если в данных есть URL, пробуем его
-    if (imageData.generated_image_url) {
-      const checkResult = await checkImageAvailability(imageData.generated_image_url, generationId)
-      if (checkResult.available) {
-        console.log(`✅ Setting image from data: ${checkResult.url}`)
-        setCurrentImageUrl(checkResult.url)
-        setImageLoadError(false)
-        setGenerationError(null)
-        return true
-      }
+  // Переключение между типами изображений
+  const toggleImageType = () => {
+    if (!generatedImageData || generatedImageData.status !== 'completed') {
+      return
     }
     
-    console.warn(`⚠️ Could not find image for generation ${generationId}`)
-    return false
-  }, [checkImageAvailability])
+    const hasNumberedImage = !!generatedImageData.numbered_image_url
+    const hasWatermarkedImage = !!generatedImageData.generated_image_url
+    
+    if (!hasWatermarkedImage) {
+      console.log('⚠️ Нет доступных изображений для переключения')
+      return
+    }
+    
+    if (!hasNumberedImage) {
+      console.log('⚠️ Изображение по номерам еще не готово')
+      alert('Изображение по номерам еще не готово. Пожалуйста, подождите.')
+      return
+    }
+    
+    const newType = currentImageType === 'watermarked' ? 'numbered' : 'watermarked'
+    console.log('🔄 Переключение типа изображения:', newType)
+    
+    setCurrentImageType(newType)
+    setCurrentImageUrl(null)
+  }
+
+  // Принудительное обновление изображения
+  const forceImageReload = () => {
+    console.log('🔄 Принудительное обновление изображения')
+    setLastImageUpdate(Date.now())
+    
+    if (generationId) {
+      refetchImageData()
+    }
+  }
 
   // Сброс состояния для новой генерации
-  const resetForNewGeneration = useCallback(() => {
-    console.log("🔄 Resetting state for new generation")
+  const resetForNewGeneration = () => {
+    console.log('🔄 Сброс состояния для новой генерации')
     
-    if (abortControllerRef.current) {
-      abortControllerRef.current.abort()
-    }
-    
-    if (retryTimeoutRef.current) {
-      clearTimeout(retryTimeoutRef.current)
-    }
-    
+    setGenerationId(null)
+    setCurrentImageType('watermarked')
     setCurrentImageUrl(null)
     setGenerationError(null)
     setImageLoadError(false)
-    setRetryCount(0)
-    setDisplayStatus(null) // Сбрасываем статус при новой генерации
-    setIsPolling(false)
-    generationCountRef.current++
-  }, [])
-
-  // Функция для повторной попытки получения изображения
-  const retryImageLoad = useCallback(async () => {
-    if (!localGenerationId) return
-    
-    const newRetryCount = retryCount + 1
-    setRetryCount(newRetryCount)
-    
-    console.log(`🔄 Retry attempt ${newRetryCount} for generation ${localGenerationId}`)
-    
-    if (newRetryCount > 5) {
-      console.error(`❌ Max retry attempts reached for generation ${localGenerationId}`)
-      setGenerationError("Не удалось загрузить изображение после нескольких попыток")
-      return
-    }
-    
-    // Перезапрашиваем данные
-    try {
-      const result = await refetchImageData()
-      if (result.data) {
-        const success = await setImageFromData(result.data, localGenerationId)
-        if (!success) {
-          // Если не удалось, пробуем снова через 2 секунды
-          retryTimeoutRef.current = setTimeout(retryImageLoad, 2000)
-        }
-      }
-    } catch (error) {
-      console.error(`❌ Error during retry: ${error}`)
-      retryTimeoutRef.current = setTimeout(retryImageLoad, 2000)
-    }
-  }, [localGenerationId, retryCount, refetchImageData, setImageFromData])
-
-  // Обработка завершения генерации
-  useEffect(() => {
-    if (generationStatus?.status === 'completed' && localGenerationId) {
-      console.log(`✅ Generation ${localGenerationId} completed`)
-      setIsPolling(false)
-      
-      // Даем бэкенду время на сохранение
-      setTimeout(async () => {
-        console.log(`🔄 Loading image data for completed generation ${localGenerationId}`)
-        try {
-          const result = await refetchImageData()
-          if (result.data) {
-            const success = await setImageFromData(result.data, localGenerationId)
-            if (!success) {
-              // Если не удалось с первого раза, начинаем повторные попытки
-              retryTimeoutRef.current = setTimeout(retryImageLoad, 1000)
-            }
-          }
-        } catch (error) {
-          console.error(`❌ Error loading image data: ${error}`)
-          retryTimeoutRef.current = setTimeout(retryImageLoad, 1000)
-        }
-      }, 1500)
-    } else if (generationStatus?.status === 'failed' && localGenerationId) {
-      console.error(`❌ Generation ${localGenerationId} failed:`, generationStatus.error_message)
-      setIsPolling(false)
-      setGenerationError(generationStatus.error_message || "Ошибка при генерации изображения")
-    }
-  }, [generationStatus, localGenerationId, refetchImageData, setImageFromData, retryImageLoad])
-
-  // Обработка изменения данных из API
-  useEffect(() => {
-    if (generatedImageData && localGenerationId === generatedImageData.id) {
-      console.log(`📦 Received API data for generation ${localGenerationId}`)
-      
-      if (generatedImageData.status === 'completed') {
-        setImageFromData(generatedImageData, localGenerationId)
-      } else if (generatedImageData.status === 'failed') {
-        setGenerationError(generatedImageData.error_message || "Ошибка при генерации изображения")
-      }
-    }
-  }, [generatedImageData, localGenerationId, setImageFromData])
+    setShouldPoll(true)
+  }
 
   const handleGenerate = async () => {
+    resetForNewGeneration()
+
     if (!uploadedPhoto) {
-      alert("Пожалуйста, сначала загрузите фото")
-      return
-    }
-    
-    if (!selectedFrame) {
-      alert("Пожалуйста, выберите рамку")
-      return
-    }
-    
-    if (!answers.setting || !answers.clothing || !answers.pose) {
-      alert("Пожалуйста, заполните все поля анкеты")
-      return
+        alert("Пожалуйста, сначала загрузите фото")
+        return
     }
 
-    console.log("🔄 Starting new image generation...")
-    console.log(`📊 Generation count: ${generationCountRef.current + 1}`)
+    if (!answers.setting || !answers.clothing || !answers.pose) {
+        alert("Пожалуйста, заполните все поля анкеты")
+        return
+    }
+
+    console.log('🔄 Начинаем генерацию изображения...')
+    console.log('📸 ID фото:', uploadedPhoto.id)
+    console.log('🖼️ ID рамки:', selectedFrame)
 
     try {
-      // Полностью сбрасываем состояние
-      resetForNewGeneration()
-      
-      const generationData = {
-        photo_id: uploadedPhoto.id,
-        frame_id: selectedFrame,
-        questionnaire: {
-          setting: answers.setting,
-          clothing: answers.clothing,
-          pose: answers.pose,
-          additional_notes: answers.translated_prompt || answers.additional_notes || ''
-        },
-        theme: isDark ? 'dark' : 'light',
-        style: 'realistic',
-        enhance_face: true
-      }
+        const generationData = {
+            photo_id: uploadedPhoto.id,
+            frame_id: selectedFrame,
+            questionnaire: {
+                setting: answers.setting,
+                clothing: answers.clothing,
+                pose: answers.pose,
+                additional_notes: answers.translated_prompt || answers.additional_notes || ''
+            },
+            theme: isDark ? 'dark' : 'light',
+            style: 'realistic',
+            enhance_face: true
+        }
 
-      console.log("📤 Sending generation data:", generationData)
+        console.log('📤 Отправка запроса на генерацию:', generationData)
 
-      const result = await generateImage(generationData).unwrap()
-      
-      console.log("✅ Generation task created:", result)
-      
-      // Устанавливаем новый ID и начинаем опрос
-      setLocalGenerationId(result.id)
-      setIsPolling(true)
-      
+        const result = await generateImage(generationData).unwrap()
+        
+        console.log('✅ Задача генерации создана:', result)
+        setGenerationId(result.id)
+        
     } catch (error) {
-      console.error("❌ Generation request failed:", error)
-      
-      let errorMessage = 'Неизвестная ошибка'
-      if (error.data?.detail) {
-        errorMessage = typeof error.data.detail === 'string' 
-          ? error.data.detail 
-          : JSON.stringify(error.data.detail)
-      } else if (error.error) {
-        errorMessage = error.error
-      }
-      
-      setGenerationError(errorMessage)
+        console.error('❌ Ошибка при создании задачи генерации:', error)
+        
+        let errorMessage = 'Неизвестная ошибка при создании задачи генерации'
+        if (error.data?.detail) {
+            errorMessage = typeof error.data.detail === 'string' 
+                ? error.data.detail 
+                : JSON.stringify(error.data.detail)
+        } else if (error.message) {
+            errorMessage = error.message
+        }
+        
+        setGenerationError(errorMessage)
     }
   }
 
   const themeClass = isDark ? styles.dark : styles.light
-
-  // Определяем статус загрузки
+  
   const isCurrentlyGenerating = isGenerating || 
-                               (isPolling && 
-                                generationStatus?.status !== 'completed' && 
-                                generationStatus?.status !== 'failed')
+                               (generatedImageData ? 
+                                 (generatedImageData.status === 'processing' || 
+                                  generatedImageData.status === 'pending') 
+                                 : (generationStatus?.status === 'processing' || 
+                                    generationStatus?.status === 'pending'))
+  
+  const isButtonDisabled = isGenerating || 
+                           (generatedImageData?.status === 'processing') ||
+                           (generatedImageData?.status === 'pending') ||
+                           !uploadedPhoto
 
-  const isButtonDisabled = isCurrentlyGenerating || !uploadedPhoto || !selectedFrame
+  const hasNumberedImage = generatedImageData?.numbered_image_url && 
+                          generatedImageData?.status === 'completed'
+  const hasWatermarkedImage = generatedImageData?.generated_image_url && 
+                             generatedImageData?.status === 'completed'
 
-  // Функция для получения текста статуса
-  const getStatusDisplay = () => {
-    if (displayStatus) {
-      return getStatusText(displayStatus.status)
-    }
-    
-    if (isCurrentlyGenerating && localGenerationId) {
-      return "Генерация..."
-    }
-    
-    return null
-  }
+  const imageUrlWithTimestamp = currentImageUrl ? 
+    `${currentImageUrl.split('?')[0]}?t=${lastImageUpdate}` : 
+    null
+
+  // Расчет текущей цены
+  const totalPrice = calculateTotalPrice()
+  const framePrice = selectedFrameData ? selectedFrameData.price : 0
+  const imagePrice = currentImageType === 'watermarked' ? PRICES.WATERMARKED_IMAGE : PRICES.NUMBERED_IMAGE
 
   return (
     <div className={`${styles.generationSection} ${themeClass}`}>
       <h2 className={`${styles.sectionTitle} ${styles.themeText}`}>Генерация изображения</h2>
-      
-      {generationError && displayStatus?.status !== 'processing' && (
+
+      {generationError && (
         <div className={styles.errorAlert}>
           <div className={styles.errorIcon}>⚠️</div>
           <div className={styles.errorContent}>
             <p><strong>Ошибка:</strong> {generationError}</p>
+            <button 
+              onClick={() => setGenerationError(null)}
+              className={styles.dismissButton}
+            >
+              ✕
+            </button>
           </div>
         </div>
       )}
 
       <h3 className={styles.themeText}>Результат:</h3>
+      
       <div className={`${styles.resultGenerationPlaceholder} ${themeClass}`}>
-        {currentImageUrl ? (
+        {imageUrlWithTimestamp ? (
           <div className={styles.generatedImageContainer}>
             <div className={styles.imageWrapper}>
               <img 
-                key={`image-${localGenerationId}-${generationCountRef.current}`}
-                src={currentImageUrl} 
-                alt="Сгенерированное изображение" 
+                key={`img-${generationId}-${lastImageUpdate}-${currentImageType}`}
+                src={imageUrlWithTimestamp}
+                alt={currentImageType === 'numbered' ? "Картина по номерам" : "Сгенерированная картина"} 
                 className={styles.generatedImage}
                 onError={(e) => {
-                  console.error("❌ Image load failed:", currentImageUrl)
-                  e.target.style.display = 'none'
+                  console.error('❌ Ошибка загрузки изображения:', e.target.src)
                   setImageLoadError(true)
-                  // Автоматически пробуем снова через 2 секунды
+                  
                   setTimeout(() => {
-                    if (localGenerationId) {
-                      retryImageLoad()
-                    }
+                    forceImageReload()
                   }, 2000)
                 }}
                 onLoad={() => {
-                  console.log("✅ Image loaded successfully!")
+                  console.log('✅ Изображение успешно загружено!')
                   setImageLoadError(false)
                 }}
               />
               {imageLoadError && (
                 <div className={styles.imageError}>
-                  <p>⚠️ Не удалось загрузить изображение</p>
-                  <p>Попытка {retryCount + 1}...</p>
+                  <p>⚠️ Ошибка загрузки изображения</p>
+                  <button 
+                    onClick={forceImageReload}
+                    className={styles.retryButton}
+                  >
+                    Повторить загрузку
+                  </button>
                 </div>
               )}
+              
             </div>
           </div>
-        ) : (
-          <div className={styles.placeholderContent}>
-            {isCurrentlyGenerating ? (
-              <div className={styles.generatingContent}>
-                <div className={styles.loadingSpinner}></div>
-                <p>Идет генерация изображения...</p>
-                <p>Это может занять несколько минут</p>
-                {displayStatus?.progress > 0 && (
-                  <p>Прогресс: {displayStatus.progress}%</p>
-                )}
-                {displayStatus?.status === 'processing' && (
-                  <p className={styles.hint}>Нейросеть рисует изображение...</p>
-                )}
-              </div>
-            ) : generationError ? (
-              <div className={styles.errorContent}>
-                <div className={styles.errorIcon}>⚠️</div>
-                <p>{generationError}</p>
-              </div>
-            ) : (
-              <div className={styles.placeholderText}>
-                <p>Здесь будет сгенерированное изображение</p>
-                <p className={styles.placeholderSubtext}>
-                  Нажмите "Сгенерировать изображение" чтобы начать
-                </p>
+        ) : generatedImageData?.status === 'completed' && !currentImageUrl ? (
+          <div className={styles.generatingContent}>
+            <div className={styles.loadingSpinner}></div>
+            <p>Загрузка изображения...</p>
+          </div>
+        ) : isCurrentlyGenerating ? (
+          <div className={styles.generatingContent}>
+            <div className={styles.loadingSpinner}></div>
+            <p>Идет генерация изображения...</p>
+            <p>Это может занять 1-2 минуты</p>
+            {generatedImageData?.progress > 0 && (
+              <div className={styles.progressContainer}>
+                <div className={styles.progressBar}>
+                  <div 
+                    className={styles.progressFill} 
+                    style={{ width: `${generatedImageData.progress}%` }}
+                  />
+                </div>
+                <span className={styles.progressText}>
+                  {generatedImageData.progress}%
+                </span>
               </div>
             )}
           </div>
+        ) : (
+          <div className={styles.placeholderText}>
+            <p>Здесь появится ваша картина</p>
+            <p className={styles.placeholderSubtext}>
+              Нажмите "Сгенерировать изображение" чтобы начать
+            </p>
+          </div>
+        )}
+      </div>
+      
+      {/* Панель управления изображением */}
+      <div className={styles.imageControls}>
+        {hasWatermarkedImage && (
+          <>
+            {hasNumberedImage && (
+              <button 
+                onClick={toggleImageType}
+                className={styles.generateBtn}
+              >
+                {currentImageType === 'watermarked' 
+                  ? 'Показать по номерам' 
+                  : 'Показать с водяным знаком'}
+              </button>
+            )}
+          </>
         )}
       </div>
       
@@ -416,20 +391,35 @@ const GenerationSection = () => {
             </>
           ) : 'Сгенерировать изображение'}
         </button>
+        
+        <h2 className={`${styles.sectionTitle} ${styles.themeText}`}>Итоговая цена</h2>
+        {/* Отображение цены */}
+        <div className={`${styles.priceContainer} ${themeClass}`}>
+          <div className={styles.priceBreakdown}>
+            <div className={styles.priceItem}>
+              <span className={styles.priceLabel}>Рамка: </span>
+              <span className={styles.priceValue}>
+                {framePrice > 0 ? ` ${framePrice.toFixed(0)} рублей` : ' Не выбрана'}
+              </span>
+            </div>
+            <div className={styles.priceItem}>
+              <span className={styles.priceLabel}>
+                {currentImageType === 'watermarked' ? 'Сгенерированное изображение: ' : 'Картина по номерам: '}
+              </span>
+              <span className={styles.priceValue}>
+                {currentImageType === 'watermarked' ? ' 200 рублей' : ' 1400 рублей'}
+              </span>
+            </div>
+            <div className={styles.priceDivider}></div>
+            <div className={styles.priceTotal}>
+              <span className={styles.totalLabel}>Итого: </span>
+              <span className={styles.totalValue}>{totalPrice.toFixed(0)} рублей</span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   )
-}
-
-// Вспомогательная функция для отображения статуса
-function getStatusText(status) {
-  const statusMap = {
-    'pending': 'В очереди',
-    'processing': 'Генерация...',
-    'completed': 'Завершено',
-    'failed': 'Ошибка'
-  }
-  return statusMap[status] || status
 }
 
 export default GenerationSection

@@ -236,6 +236,12 @@ const FrameSelection = () => {
 
   const handleFrameSelect = async (frameId) => {
     try {
+      if (frameId === null) {
+        // Сброс выбора
+        dispatch(selectFrame(null))
+        return
+      }
+      
       await selectFrameApi(frameId).unwrap()
       dispatch(selectFrame(frameId))
     } catch (error) {
@@ -251,12 +257,11 @@ const FrameSelection = () => {
   const availableFrames = framesFromRedux
   const selectedFrameData = availableFrames.find(f => f.id === selectedFrame)
 
-  console.log('Available frames from Redux:', availableFrames)
-  console.log('Selected frame:', selectedFrameData)
-
   return (
     <div className={`${styles.frameSelection} ${themeClass}`}>
-      <h3 className={styles.frameTitle}>Выбор рамки</h3>
+      <div className={styles.header}>
+        <h3 className={styles.frameTitle}>Выбор рамки</h3>
+      </div>
       
       {isFramesLoading ? (
         <div className={styles.loading}>Загрузка рамок...</div>
@@ -287,7 +292,9 @@ const FrameSelection = () => {
                         }}
                       />
                     </div>
-                    <span className={styles.frameName}>{frame.name}</span>
+                    <div className={styles.frameInfo}>
+                      <span className={styles.frameName}>{frame.name}</span>
+                    </div>
                   </div>
                 </div>
               ))}
@@ -296,40 +303,63 @@ const FrameSelection = () => {
 
           {selectedFrameData && (
             <div className={`${styles.selectedFrameInfo} ${themeClass}`}>
-              <h4 className={styles.selectedFrameTitle}>3D модель выбранной рамки: {selectedFrameData.name}</h4>                
-                <div className={styles.modelViewerContainer}>
-                  <Canvas
-                    camera={{ 
-                      position: selectedFrameData.cameraSettings?.initialPosition || [0, 0, 5], 
-                      fov: 50 
-                    }}
-                    className={styles.modelCanvas}
-                    shadows={{ enabled: true, type: THREE.PCFSoftShadowMap }}
-                    gl={{ antialias: true, alpha: true }}
-                  >
-                    <SoftShadows size={25} samples={16} focus={0.5} />
-                    <Lighting />
-                    <Suspense fallback={<ModelFallback />}>
-                      {selectedFrameData.model_3d_url ? (
-                        <FrameModel 
-                          modelUrl={getImageUrl(selectedFrameData.model_3d_url)}
-                          cameraSettings={selectedFrameData.cameraSettings}
-                        />
-                      ) : (
-                        <SimpleFrame type={selectedFrameData.frame_type} />
-                      )}
-                    </Suspense>
-                    <OrbitControls 
-                      enableZoom={true}
-                      enablePan={false}
-                      enableRotate={true}
-                      maxDistance={selectedFrameData.cameraSettings?.maxDistance || 10}
-                      minDistance={selectedFrameData.cameraSettings?.minDistance || 3}
-                      autoRotate={false}
-                    />
-                  </Canvas>
+              <h4 className={styles.selectedFrameTitle}>
+                  3D модель выбранной рамки: {selectedFrameData.name}
+                </h4>
+              <div className={styles.selectedFrameHeader}>
+                <button 
+                  className={`${styles.resetButton} ${themeClass}`}
+                  onClick={() => handleFrameSelect(null)}
+                >
+                Выбрать другую
+                </button>
+              </div>
+              
+              <div className={styles.frameDetails}>
+                <div className={styles.framePriceInfo}>
+                  <span className={styles.selectedFrameTitle}>Стоимость рамки:</span>
+                  <span className={styles.selectedFrameTitle}>
+                    {selectedFrameData.price > 0 ? 
+                      ` ${(selectedFrameData.price).toFixed(0)} рублей` : 
+                      'Бесплатно'
+                    }
+                  </span>
                 </div>
               </div>
+                
+              <div className={styles.modelViewerContainer}>
+                <Canvas
+                  camera={{ 
+                    position: selectedFrameData.cameraSettings?.initialPosition || [0, 0, 5], 
+                    fov: 50 
+                  }}
+                  className={styles.modelCanvas}
+                  shadows={{ enabled: true, type: THREE.PCFSoftShadowMap }}
+                  gl={{ antialias: true, alpha: true }}
+                >
+                  <SoftShadows size={25} samples={16} focus={0.5} />
+                  <Lighting />
+                  <Suspense fallback={<ModelFallback />}>
+                    {selectedFrameData.model_3d_url ? (
+                      <FrameModel 
+                        modelUrl={getImageUrl(selectedFrameData.model_3d_url)}
+                        cameraSettings={selectedFrameData.cameraSettings}
+                      />
+                    ) : (
+                      <SimpleFrame type={selectedFrameData.frame_type} />
+                    )}
+                  </Suspense>
+                  <OrbitControls 
+                    enableZoom={true}
+                    enablePan={false}
+                    enableRotate={true}
+                    maxDistance={selectedFrameData.cameraSettings?.maxDistance || 10}
+                    minDistance={selectedFrameData.cameraSettings?.minDistance || 3}
+                    autoRotate={false}
+                  />
+                </Canvas>
+              </div>
+            </div>
           )}
 
           {availableFrames.length === 0 && (

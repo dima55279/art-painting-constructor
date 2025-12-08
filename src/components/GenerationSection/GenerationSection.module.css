@@ -100,6 +100,7 @@
     font-weight: 700;
     transition: all 0.3s ease;
     margin-top: 20px;
+    margin-bottom: 50px;
 }
 
 .generateBtn:hover:not(:disabled) {
@@ -148,6 +149,55 @@
 
 .light .themeText {
     color: #11012E;
+}
+
+.priceContainer {
+  margin-top: 20px;
+  padding: 20px;
+  border-radius: 8px;
+  background-color: #11012E;
+  color:#FBFF00;
+}
+
+.priceContainer.dark {
+  background-color: #FBFF00;
+  color: #11012E;
+}
+
+.priceBreakdown {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.priceItem {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 8px 0;
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.priceLabel {
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.priceValue {
+  font-weight: 700;
+  font-size: 28px;
+}
+
+.totalLabel {
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.totalValue {
+  font-size: 30px;
+  font-weight: 700;
+  color: #2ecc71;
 }
 
 @media (max-width: 768px) {

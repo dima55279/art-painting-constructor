@@ -10,12 +10,11 @@ class QuestionnaireData(BaseModel):
 
 class GenerationRequest(BaseModel):
     photo_id: int
-    frame_id: int
+    frame_id: Optional[int] = None  # Сделаем frame_id опциональным
     questionnaire: QuestionnaireData
     theme: str
     style: str
     enhance_face: bool
-
 
 class GenerationResponse(BaseModel):
     id: int
@@ -26,12 +25,12 @@ class GenerationResponse(BaseModel):
     created_at: datetime
     started_at: Optional[datetime] = None
     completed_at: Optional[datetime] = None
-    generated_image_url: Optional[str] = None
-    numbered_image_url: Optional[str] = None
+    generated_image_url: Optional[str] = None  # С водяным знаком
+    numbered_image_url: Optional[str] = None   # Разбитое по номерам с водяным знаком
     preview_image_url: Optional[str] = None
     error_message: Optional[str] = None
-    colors_used: Optional[List[str]] = None
-    complexity_score: Optional[int] = None
+    colors_used: Optional[List[str]] = None    # Используемые цвета
+    complexity_score: Optional[int] = None     # Сложность (количество цветов)
     generation_time_seconds: Optional[float] = None
 
     class Config:
@@ -42,9 +41,9 @@ class GeneratedImageResponse(BaseModel):
     id: int
     user_id: Optional[int]
     original_photo_id: int
-    frame_id: int
-    generated_image_url: Optional[str] = None
-    numbered_image_url: Optional[str] = None
+    frame_id: Optional[int] = None  # Сделаем frame_id опциональным
+    generated_image_url: Optional[str] = None  # URL с водяным знаком
+    numbered_image_url: Optional[str] = None   # URL разбитого по номерам с водяным знаком
     preview_image_url: Optional[str] = None
     status: str
     progress: int
@@ -60,6 +59,14 @@ class GeneratedImageResponse(BaseModel):
 
     class Config:
         from_attributes = True
+        
+    @validator('generated_image_url', 'numbered_image_url', pre=True, always=True)
+    def ensure_absolute_url(cls, v, values):
+        """Обеспечиваем абсолютные URL для изображений"""
+        if v and not v.startswith('http') and not v.startswith('/'):
+            return f"/static/generated_images/{v}"
+        return v
+
 
 class GenerationStatus(BaseModel):
     id: int

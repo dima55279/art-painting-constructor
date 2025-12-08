@@ -10,11 +10,10 @@ class GeneratedImage(Base):
 
     user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=True)
     original_photo_id = Column(Integer, ForeignKey("photos.id", ondelete="CASCADE"), nullable=False)
-    frame_id = Column(Integer, ForeignKey("frames.id", ondelete="CASCADE"), nullable=False)
+    frame_id = Column(Integer, ForeignKey("frames.id", ondelete="CASCADE"), nullable=True)
 
-    # ИЗМЕНИТЕ: nullable=False → nullable=True для полей, которые заполняются после генерации
-    generated_image_url = Column(String(500), nullable=True)  # ← ИЗМЕНИТЬ
-    numbered_image_url = Column(String(500), nullable=True) 
+    generated_image_url = Column(String(500), nullable=True)  # Изображение с водяным знаком
+    numbered_image_url = Column(String(500), nullable=True)   # Разбитое по номерам с водяным знаком
     preview_image_url = Column(String(500), nullable=True)   
 
     generation_parameters = Column(JSON, nullable=True) 
@@ -44,6 +43,16 @@ class GeneratedImage(Base):
     def is_completed(self) -> bool:
         """Завершена ли генерация"""
         return self.status == "completed"
+    
+    @property
+    def has_numbered_image(self) -> bool:
+        """Есть ли разбитое по номерам изображение"""
+        return self.numbered_image_url is not None
+    
+    @property
+    def has_watermarked_image(self) -> bool:
+        """Есть ли изображение с водяным знаком"""
+        return self.generated_image_url is not None
     
     @property
     def processing_time(self) -> float:

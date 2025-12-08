@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 async def generate_image(
     background_tasks: BackgroundTasks,
     request: Request,
-    generation_data: GenerationRequest = Body(..., embed=False),  # Ключевое изменение!
+    generation_data: GenerationRequest = Body(..., embed=False),
     current_user: Optional[User] = Depends(get_current_user_optional),
     db: AsyncSession = Depends(get_db)
 ):
@@ -31,8 +31,7 @@ async def generate_image(
 
     generation_service = GenerationService(db)
     photo_service = PhotoService(db)
-    frame_service = FrameService(db)
-
+    
     # Для неавторизованных пользователей используем session_id
     session_id = None
     if not current_user:
@@ -69,16 +68,21 @@ async def generate_image(
                 detail="На фотографии не обнаружено лицо"
             )
 
-        print(f"🔍 Looking for frame ID: {generation_data.frame_id}")
-        frame = await frame_service.get_frame(generation_data.frame_id)
-        if not frame:
-            print("❌ Frame not found")
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Рамка не найдена"
-            )
-
-        print("✅ Frame found")
+        # Проверяем рамку только если она указана
+        frame = None
+        if generation_data.frame_id:
+            print(f"🔍 Looking for frame ID: {generation_data.frame_id}")
+            frame_service = FrameService(db)
+            frame = await frame_service.get_frame(generation_data.frame_id)
+            if not frame:
+                print("❌ Frame not found")
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail="Рамка не найдена"
+                )
+            print("✅ Frame found")
+        else:
+            print("ℹ️ No frame selected, generating without frame")
 
         # Для неавторизованных пользователей ограничиваем количество генераций
         if not current_user:
@@ -98,7 +102,7 @@ async def generate_image(
             user_id=current_user.id if current_user else None,
             session_id=session_id,
             photo_id=generation_data.photo_id,
-            frame_id=generation_data.frame_id,
+            frame_id=generation_data.frame_id,  # Может быть None
             questionnaire_answers=generation_data.questionnaire.dict(),
             generation_parameters={
                 "theme": generation_data.theme,

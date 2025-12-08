@@ -3,6 +3,10 @@ import os
 import asyncio
 import uuid
 import time
+import cv2
+import numpy as np
+from PIL import Image, ImageDraw, ImageFont
+from io import BytesIO
 from datetime import datetime
 from typing import List, Optional, Dict, Any, Tuple
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -17,6 +21,7 @@ from app.models.subscription import Subscription
 from app.config import settings
 from app.services.stable_diffusion_service import stable_diffusion_service
 from app.services.translation_service import translation_service
+from app.services.paint_by_numbers_service import paint_by_numbers_service
 
 class GenerationService:
     def __init__(self, db: AsyncSession):
@@ -283,6 +288,149 @@ class GenerationService:
             generation.status = "failed"
             generation.error_message = str(e)
             await self.db.commit()
+    
+    async def add_watermark_to_image(self, image_bytes: bytes) -> bytes:
+        """
+        Добавление водяного знака на изображение (улучшенная версия)
+        """
+        try:
+            print("🖼️ Adding watermark to image...")
+            
+            # Преобразуем байты в изображение PIL
+            image_pil = Image.open(BytesIO(image_bytes)).convert("RGBA")
+            
+            # Создаем водяной знак
+            watermark = await self._create_or_load_watermark()
+            if watermark is None:
+                print("⚠️ Could not create watermark, returning original image")
+                return image_bytes
+            
+            # Изменяем размер водяного знака
+            image_width, image_height = image_pil.size
+            wm_width, wm_height = watermark.size
+            
+            # Рассчитываем размер водяного знака (60% от высоты изображения)
+            new_wm_height = int(image_height * 0.6)
+            new_wm_width = int(wm_width * (new_wm_height / wm_height))
+            
+            watermark = watermark.resize((new_wm_width, new_wm_height), Image.Resampling.LANCZOS)
+            
+            # Создаем копию изображения для наложения водяного знака
+            watermarked = image_pil.copy()
+            
+            # Позиционируем водяной знак (в центре)
+            position = (
+                (image_width - new_wm_width) // 2,
+                (image_height - new_wm_height) // 2
+            )
+            
+            print(f"📏 Image: {image_width}x{image_height}")
+            print(f"📏 Watermark: {new_wm_width}x{new_wm_height}")
+            print(f"📍 Position: {position}")
+            
+            # Создаем маску для водяного знака (полупрозрачная)
+            watermark_with_alpha = watermark.copy()
+            # Устанавливаем прозрачность 60%
+            alpha = watermark_with_alpha.split()[3]
+            alpha = alpha.point(lambda p: int(p * 0.8))
+            watermark_with_alpha.putalpha(alpha)
+            
+            # Накладываем водяной знак
+            watermarked.paste(watermark_with_alpha, position, watermark_with_alpha)
+            
+            # Конвертируем обратно в байты
+            output = BytesIO()
+            watermarked.save(output, format='PNG', quality=95)
+            output.seek(0)
+            
+            print("✅ Watermark added successfully")
+            return output.getvalue()
+            
+        except Exception as e:
+            print(f"❌ Error adding watermark: {str(e)}")
+            import traceback
+            traceback.print_exc()
+            return image_bytes
+    
+    async def _create_or_load_watermark(self) -> Image.Image:
+        """
+        Создание или загрузка водяного знака
+        """
+        watermark_path = "static/watermark.png"
+        
+        try:
+            # Пробуем загрузить существующий водяной знак
+            if os.path.exists(watermark_path):
+                watermark = Image.open(watermark_path).convert("RGBA")
+                print(f"✅ Loaded watermark from {watermark_path}")
+                return watermark
+        except Exception as e:
+            print(f"⚠️ Error loading watermark: {str(e)}")
+        
+        # Создаем новый водяной знак
+        print("🖌️ Creating new watermark...")
+        return await self._create_default_watermark(watermark_path)
+    
+    async def _create_default_watermark(self, path: str) -> Image.Image:
+        """
+        Создание водяного знака по умолчанию с использованием PIL
+        """
+        # Создаем изображение 400x100 с прозрачным фоном
+        watermark = Image.new('RGBA', (400, 100), (255, 255, 255, 0))
+        draw = ImageDraw.Draw(watermark)
+        
+        # Пробуем использовать различные шрифты
+        font_paths = [
+            "arial.ttf",
+            "/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf",
+            "/System/Library/Fonts/Helvetica.ttc"
+        ]
+        
+        font = None
+        for font_path in font_paths:
+            try:
+                font = ImageFont.truetype(font_path, 40)
+                break
+            except:
+                continue
+        
+        if font is None:
+            # Используем стандартный шрифт
+            font = ImageFont.load_default()
+            print("⚠️ Using default font for watermark")
+        
+        # Добавляем текст водяного знака
+        text = "Art Painting"
+        
+        # Вычисляем размер текста
+        try:
+            bbox = draw.textbbox((0, 0), text, font=font)
+            text_width = bbox[2] - bbox[0]
+            text_height = bbox[3] - bbox[1]
+        except:
+            # Если не можем вычислить, используем приблизительные значения
+            text_width = 200
+            text_height = 50
+        
+        # Позиционируем по центру
+        x = (400 - text_width) // 2
+        y = (100 - text_height) // 2
+        
+        # Добавляем тень для лучшей видимости
+        shadow_color = (0, 0, 0, 100)  # Черный с прозрачностью
+        text_color = (255, 255, 255, 180)  # Белый с прозрачностью
+        
+        # Рисуем тень
+        draw.text((x + 2, y + 2), text, fill=shadow_color, font=font)
+        # Рисуем основной текст
+        draw.text((x, y), text, fill=text_color, font=font)
+        
+        # Сохраняем водяной знак
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        watermark.save(path, 'PNG')
+        print(f"✅ Created watermark at {path}")
+        
+        return watermark
         
     async def process_generation_with_sd(self, generation_id: int) -> None:
         """Обработка генерации с использованием Stable Diffusion"""
@@ -297,15 +445,19 @@ class GenerationService:
 
             # Получаем связанные данные
             photo = await self.db.get(Photo, generation.original_photo_id)
-            frame = await self.db.get(Frame, generation.frame_id)
             
-            if not photo or not frame:
-                raise ValueError("Не найдено фото или рамка")
+            if not photo:
+                raise ValueError("Не найдено фото")
 
-            # Генерируем промпт
+            # Получаем рамку только если она указана
+            frame = None
+            if generation.frame_id:
+                frame = await self.db.get(Frame, generation.frame_id)
+
+            # Генерируем промпт без учета рамки
             ai_prompt = await self._generate_ai_prompt(
-                generation.questionnaire_answers, 
-                frame,
+                generation.questionnaire_answers,
+                frame,  # Передаем, но не используем в промпте
                 generation.generation_parameters.get('theme', 'light')
             )
 
@@ -313,8 +465,8 @@ class GenerationService:
             image_bytes = await stable_diffusion_service.generate_image(
                 prompt=ai_prompt,
                 negative_prompt="ugly, blurry, low quality, deformed, bad anatomy, poorly drawn",
-                width=1024,
-                height=1024,
+                width=512,
+                height=512,
                 steps=25,
                 cfg_scale=7.5
             )
@@ -322,45 +474,88 @@ class GenerationService:
             if not image_bytes:
                 raise Exception("Не удалось сгенерировать изображение")
 
-            # Сохраняем сгенерированное изображение
-            filename = f"generated_{generation_id}_{uuid.uuid4().hex[:8]}.png"
-            filepath = os.path.join(settings.GENERATED_IMAGES_DIR, filename)
+            # СОХРАНЯЕМ ОРИГИНАЛЬНОЕ ИЗОБРАЖЕНИЕ
+            original_filename = f"original_{uuid.uuid4().hex[:8]}.png"
+            original_filepath = os.path.join(settings.GENERATED_IMAGES_DIR, original_filename)
             
-            os.makedirs(settings.GENERATED_IMAGES_DIR, exist_ok=True)
-            
-            async with aiofiles.open(filepath, 'wb') as f:
+            async with aiofiles.open(original_filepath, 'wb') as f:
                 await f.write(image_bytes)
+            
+            # ДОБАВЛЯЕМ ВОДЯНОЙ ЗНАК НА ОРИГИНАЛ
+            watermarked_bytes = await self.add_watermark_to_image(image_bytes)
+            
+            # Сохраняем изображение с водяным знаком
+            watermarked_filename = f"watermarked_{uuid.uuid4().hex[:8]}.png"
+            watermarked_filepath = os.path.join(settings.GENERATED_IMAGES_DIR, watermarked_filename)
+            
+            async with aiofiles.open(watermarked_filepath, 'wb') as f:
+                await f.write(watermarked_bytes)
+            
+            # СОЗДАЕМ ИЗОБРАЖЕНИЕ, РАЗБИТОЕ ПО НОМЕРАМ
+            print("🎨 Создаем изображение по номерам...")
+            numbered_bytes, colors_used = await paint_by_numbers_service.create_numbered_image(
+                image_bytes,
+                add_watermark=False
+            )
+            
+            if numbered_bytes:
+                # ДОБАВЛЯЕМ ВОДЯНОЙ ЗНАК НА ИЗОБРАЖЕНИЕ ПО НОМЕРАМ
+                numbered_watermarked_bytes = await self.add_watermark_to_image(numbered_bytes)
+                
+                # Сохраняем изображение по номерам с водяным знаком
+                numbered_filename = f"numbered_{uuid.uuid4().hex[:8]}.png"
+                numbered_filepath = os.path.join(settings.GENERATED_IMAGES_DIR, numbered_filename)
+                
+                async with aiofiles.open(numbered_filepath, 'wb') as f:
+                    await f.write(numbered_watermarked_bytes)
+                
+                print(f"✅ Создано изображение по номерам: {numbered_filepath}")
+                print(f"🎨 Использовано цветов: {len(colors_used)}")
+                
+                # Обновляем базу данных с URL изображения по номерам
+                generation.numbered_image_url = f"/static/generated_images/{numbered_filename}"
+                generation.colors_used = colors_used
+                generation.complexity_score = len(colors_used)
+            else:
+                print("⚠️ Не удалось создать изображение по номерам")
+                generation.colors_used = []
+                generation.complexity_score = 0
+            
+            print(f"✅ Сохранены изображения:")
+            print(f"   Оригинал: {original_filepath}")
+            print(f"   С водяным знаком: {watermarked_filepath}")
+            print(f"   По номерам: {numbered_filepath if numbered_bytes else 'НЕТ'}")
 
-            print(f"✅ Saved image to: {filepath}")
-            print(f"✅ File exists: {os.path.exists(filepath)}")
-
-            # ОБЯЗАТЕЛЬНО обновляем все поля перед коммитом
+            # ОБНОВЛЯЕМ БАЗУ ДАННЫХ
             generation.status = "completed"
             generation.completed_at = datetime.utcnow()
             generation.progress = 100
-            generation.generated_image_url = f"/static/generated_images/{filename}"
-            generation.preview_image_url = f"/static/generated_images/{filename}"
             
-            generation.colors_used = ["#FF5733", "#33FF57", "#3357FF"]
-            generation.complexity_score = 7
+            # Сохраняем URL водяного знака для отображения
+            generation.generated_image_url = f"/static/generated_images/{watermarked_filename}"
+            generation.preview_image_url = f"/static/generated_images/{watermarked_filename}"
+            
+            # Сохраняем URL оригинального изображения в метаданных
+            if generation.generation_parameters is None:
+                generation.generation_parameters = {}
+            
+            generation.generation_parameters['original_image_url'] = f"/static/generated_images/{original_filename}"
+            
+            # Время генерации
             generation.generation_time_seconds = (
                 generation.completed_at - generation.started_at
             ).total_seconds()
 
-            print(f"✅ Setting generated_image_url: {generation.generated_image_url}")
-            print(f"✅ Generation object before commit: {generation}")
-
-            # Коммит изменений
-            await self.db.commit()
+            print(f"✅ Установлен URL с водяным знаком: {generation.generated_image_url}")
+            print(f"✅ Установлен URL по номерам: {generation.numbered_image_url}")
             
-            # Обновляем объект после коммита
+            await self.db.commit()
             await self.db.refresh(generation)
             
-            print(f"✅ Generation after commit - generated_image_url: {generation.generated_image_url}")
-            print(f"✅ Generation {generation_id} completed successfully")
+            print(f"✅ Генерация {generation_id} завершена успешно")
 
         except Exception as e:
-            print(f"❌ Generation {generation_id} failed: {str(e)}")
+            print(f"❌ Генерация {generation_id} не удалась: {str(e)}")
             import traceback
             traceback.print_exc()
             
@@ -378,33 +573,41 @@ class GenerationService:
         
         return None
 
-    async def _generate_ai_prompt(self, questionnaire_data: Dict[str, Any], frame: Frame) -> str:
-        """Генерация промпта для нейросети на основе анкеты и рамки"""
+    async def _generate_ai_prompt(
+        self, 
+        questionnaire_data: Dict[str, Any], 
+        frame: Optional[Frame] = None,  # Делаем параметр опциональным
+        theme: str = 'light'
+    ) -> str:
+        """Генерация промпта для нейросети на основе анкеты (без учета рамки)"""
         
         # Базовые компоненты промпта
         setting = questionnaire_data.get('setting', 'a beautiful scene')
         clothing = questionnaire_data.get('clothing', 'elegant clothes')
         pose = questionnaire_data.get('pose', 'natural pose')
         
-        # Стилевые параметры из анкеты
-        style_params = questionnaire_data.get('style_parameters', {})
-        artistic_style = style_params.get('artistic_style', 'realistic')
-        mood = style_params.get('mood', 'neutral')
+        # Дополнительные заметки
+        additional_notes = questionnaire_data.get('additional_notes', '')
         
-        # Адаптируем стиль рамки для промпта
-        frame_style = self._get_frame_style_prompt(frame)
-        
-        # Собираем промпт
+        # Собираем промпт без учета рамки
         prompt_parts = [
             f"portrait of a person in {setting}",
             f"wearing {clothing}",
             f"in a {pose}",
-            f"{artistic_style} style",
-            f"{mood} mood",
-            frame_style,
-            "high quality, detailed, masterpiece",
-            "sharp focus, professional photography"
+            f"realistic style",
+            f"high quality, detailed, masterpiece",
+            f"sharp focus, professional photography"
         ]
+        
+        # Добавляем дополнительные заметки если есть
+        if additional_notes:
+            prompt_parts.append(additional_notes)
+        
+        # Добавляем тему (dark/light)
+        if theme == 'dark':
+            prompt_parts.append("dark atmosphere, dramatic lighting")
+        else:
+            prompt_parts.append("bright lighting, cheerful atmosphere")
         
         # Убираем пустые части и соединяем
         prompt = ", ".join([part for part in prompt_parts if part])
@@ -491,15 +694,19 @@ class GenerationService:
 
             # Получаем связанные данные
             photo = await self.db.get(Photo, generation.original_photo_id)
-            frame = await self.db.get(Frame, generation.frame_id)
             
-            if not photo or not frame:
-                raise ValueError("Не найдено фото или рамка")
+            if not photo:
+                raise ValueError("Не найдено фото")
 
-            # Генерируем промпт
+            # Получаем рамку только если она указана
+            frame = None
+            if generation.frame_id:
+                frame = await self.db.get(Frame, generation.frame_id)
+
+            # Генерируем промпт без учета рамки
             ai_prompt = await self._generate_ai_prompt(
-                generation.questionnaire_answers, 
-                frame,
+                generation.questionnaire_answers,
+                frame,  # Передаем, но не используем в промпте
                 generation.generation_parameters.get('theme', 'light')
             )
 
@@ -516,45 +723,88 @@ class GenerationService:
             if not image_bytes:
                 raise Exception("Не удалось сгенерировать изображение")
 
-            # Сохраняем сгенерированное изображение
-            filename = f"generated_{generation_id}_{uuid.uuid4().hex[:8]}.png"
-            filepath = os.path.join(settings.GENERATED_IMAGES_DIR, filename)
+            # СОХРАНЯЕМ ОРИГИНАЛЬНОЕ ИЗОБРАЖЕНИЕ
+            original_filename = f"original_{uuid.uuid4().hex[:8]}.png"
+            original_filepath = os.path.join(settings.GENERATED_IMAGES_DIR, original_filename)
             
-            os.makedirs(settings.GENERATED_IMAGES_DIR, exist_ok=True)
-            
-            async with aiofiles.open(filepath, 'wb') as f:
+            async with aiofiles.open(original_filepath, 'wb') as f:
                 await f.write(image_bytes)
+            
+            # ДОБАВЛЯЕМ ВОДЯНОЙ ЗНАК НА ОРИГИНАЛ
+            watermarked_bytes = await self.add_watermark_to_image(image_bytes)
+            
+            # Сохраняем изображение с водяным знаком
+            watermarked_filename = f"watermarked_{uuid.uuid4().hex[:8]}.png"
+            watermarked_filepath = os.path.join(settings.GENERATED_IMAGES_DIR, watermarked_filename)
+            
+            async with aiofiles.open(watermarked_filepath, 'wb') as f:
+                await f.write(watermarked_bytes)
+            
+            # СОЗДАЕМ ИЗОБРАЖЕНИЕ, РАЗБИТОЕ ПО НОМЕРАМ
+            print("🎨 Создаем изображение по номерам...")
+            numbered_bytes, colors_used = await paint_by_numbers_service.create_numbered_image(
+                image_bytes,
+                add_watermark=False
+            )
+            
+            if numbered_bytes:
+                # ДОБАВЛЯЕМ ВОДЯНОЙ ЗНАК НА ИЗОБРАЖЕНИЕ ПО НОМЕРАМ
+                numbered_watermarked_bytes = await self.add_watermark_to_image(numbered_bytes)
+                
+                # Сохраняем изображение по номерам с водяным знаком
+                numbered_filename = f"numbered_{uuid.uuid4().hex[:8]}.png"
+                numbered_filepath = os.path.join(settings.GENERATED_IMAGES_DIR, numbered_filename)
+                
+                async with aiofiles.open(numbered_filepath, 'wb') as f:
+                    await f.write(numbered_watermarked_bytes)
+                
+                print(f"✅ Создано изображение по номерам: {numbered_filepath}")
+                print(f"🎨 Использовано цветов: {len(colors_used)}")
+                
+                # Обновляем базу данных с URL изображения по номерам
+                generation.numbered_image_url = f"/static/generated_images/{numbered_filename}"
+                generation.colors_used = colors_used
+                generation.complexity_score = len(colors_used)
+            else:
+                print("⚠️ Не удалось создать изображение по номерам")
+                generation.colors_used = []
+                generation.complexity_score = 0
+            
+            print(f"✅ Сохранены изображения:")
+            print(f"   Оригинал: {original_filepath}")
+            print(f"   С водяным знаком: {watermarked_filepath}")
+            print(f"   По номерам: {numbered_filepath if numbered_bytes else 'НЕТ'}")
 
-            print(f"✅ Saved image to: {filepath}")
-            print(f"✅ File exists: {os.path.exists(filepath)}")
-
-            # ОБЯЗАТЕЛЬНО обновляем все поля перед коммитом
+            # ОБНОВЛЯЕМ БАЗУ ДАННЫХ
             generation.status = "completed"
             generation.completed_at = datetime.utcnow()
             generation.progress = 100
-            generation.generated_image_url = f"/static/generated_images/{filename}"
-            generation.preview_image_url = f"/static/generated_images/{filename}"
             
-            generation.colors_used = ["#FF5733", "#33FF57", "#3357FF"]
-            generation.complexity_score = 7
+            # Сохраняем URL водяного знака для отображения
+            generation.generated_image_url = f"/static/generated_images/{watermarked_filename}"
+            generation.preview_image_url = f"/static/generated_images/{watermarked_filename}"
+            
+            # Сохраняем URL оригинального изображения в метаданных
+            if generation.generation_parameters is None:
+                generation.generation_parameters = {}
+            
+            generation.generation_parameters['original_image_url'] = f"/static/generated_images/{original_filename}"
+            
+            # Время генерации
             generation.generation_time_seconds = (
                 generation.completed_at - generation.started_at
             ).total_seconds()
 
-            print(f"✅ Setting generated_image_url: {generation.generated_image_url}")
-            print(f"✅ Generation object before commit: {generation}")
-
-            # Коммит изменений
-            await self.db.commit()
+            print(f"✅ Установлен URL с водяным знаком: {generation.generated_image_url}")
+            print(f"✅ Установлен URL по номерам: {generation.numbered_image_url}")
             
-            # Обновляем объект после коммита
+            await self.db.commit()
             await self.db.refresh(generation)
             
-            print(f"✅ Generation after commit - generated_image_url: {generation.generated_image_url}")
-            print(f"✅ Generation {generation_id} completed successfully")
+            print(f"✅ Генерация {generation_id} завершена успешно")
 
         except Exception as e:
-            print(f"❌ Generation {generation_id} failed: {str(e)}")
+            print(f"❌ Генерация {generation_id} не удалась: {str(e)}")
             import traceback
             traceback.print_exc()
             
@@ -565,10 +815,10 @@ class GenerationService:
     async def _generate_ai_prompt(
         self, 
         questionnaire_data: Dict[str, Any], 
-        frame: Frame,
+        frame: Optional[Frame] = None,  # Делаем параметр опциональным
         theme: str = 'light'
     ) -> str:
-        """Генерация промпта для нейросети на основе анкеты и рамки"""
+        """Генерация промпта для нейросети на основе анкеты (без учета рамки)"""
         
         # Базовые компоненты промпта
         setting = questionnaire_data.get('setting', 'a beautiful scene')
@@ -578,24 +828,14 @@ class GenerationService:
         # Дополнительные заметки
         additional_notes = questionnaire_data.get('additional_notes', '')
         
-        # Стилевые параметры из анкеты
-        style_params = questionnaire_data.get('style_parameters', {})
-        artistic_style = style_params.get('artistic_style', 'realistic')
-        mood = style_params.get('mood', 'neutral')
-        
-        # Адаптируем стиль рамки для промпта
-        frame_style = self._get_frame_style_prompt(frame)
-        
-        # Собираем промпт
+        # Собираем промпт без учета рамки
         prompt_parts = [
             f"portrait of a person in {setting}",
             f"wearing {clothing}",
             f"in a {pose}",
-            f"{artistic_style} style",
-            f"{mood} mood",
-            frame_style,
-            "high quality, detailed, masterpiece",
-            "sharp focus, professional photography"
+            f"realistic style",
+            f"high quality, detailed, masterpiece",
+            f"sharp focus, professional photography"
         ]
         
         # Добавляем дополнительные заметки если есть
